@@ -1,11 +1,15 @@
 package com.example.boardgame;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,8 +27,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import okhttp3.Call;
@@ -52,8 +58,6 @@ public class scheduleMeetingInput extends AppCompatActivity {
     private Calendar calendar;
     private EditText inputSearch; // 장소 입력 창
     private Button input; // 장소 검색용 버튼
-    String formattedDate1; // mysql 에 전송용 포맷
-    String formattedTime1; // mysql 에 전송용 포맷
     int id;
 
     @Override
@@ -93,22 +97,7 @@ public class scheduleMeetingInput extends AppCompatActivity {
 
         peopleNotion.setText("정원 (2 ~ "+ maxNum +")");
 
-        if(savedInstanceState != null){
-            String Sid = savedInstanceState.getString("id");
-            String Title = savedInstanceState.getString("Title");
-            String Date = savedInstanceState.getString("Date");
-            String Time = savedInstanceState.getString("Time");
-            String current = savedInstanceState.getString("current");
-            String register = savedInstanceState.getString("register");
-
-            id = Integer.parseInt(Sid);
-            scheduleTitle.setText(Title);
-            scheduleDate.setText(Date);
-            scheduleTime.setText(Time);
-            peopleNotion.setText(current);
-            peopleNum.setText(register);
-        }
-
+        restoreState(); // 쉐어드 프리퍼런스에 저장되어있던 내용을 ui 에 다시 입력함
         scheduleDateIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,6 +112,18 @@ public class scheduleMeetingInput extends AppCompatActivity {
             }
         });
 
+        // 뒤로 가기 버튼 클릭
+        backPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(scheduleMeetingInput.this, getMeeting.class);
+                intent1.putExtra("id", id);
+                startActivity(intent1);
+                finish();
+            }
+        });
+
+        // 카페 지도 엑티비티로 이동하는 코드
         input.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,7 +133,7 @@ public class scheduleMeetingInput extends AppCompatActivity {
                 intent1.putExtra("where", "schedule");
                 intent1.putExtra("num", maxNum);
                 startActivity(intent1);
-                finish();
+                saveState();
             }
         });
 
@@ -162,46 +163,106 @@ public class scheduleMeetingInput extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
                 String Uid = sharedPreferences.getString("userId", "");
 
-                inputScheduleMeeting(id, Uid, scheduleTitle.getText().toString(), formattedDate1, formattedTime1,
+                inputScheduleMeeting(id, Uid, scheduleTitle.getText().toString(),
                         maxNum, placeName.getText().toString(), placeAddress.getText().toString(), y, x);
+                deleteStorage();
+                finish();
             }
         });
     } // end onCreate
 
-    // onSaveInstanceState 메소드를 사용해서 데이터를 임시 저장함
-    @Override
-    protected void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        String Title = scheduleTitle.getText().toString(); // 제목
-        String Date = scheduleDate.getText().toString(); // 날짜
-        String Time = scheduleTime.getText().toString(); // 시간
-        String current = peopleNotion.getText().toString(); // 가능 인원수
-        String register = peopleNum.getText().toString(); // 최대 인원수
+    // 지도 엑티비티에 갔다와도 ui에 입력된 데이터를 쉐어드 프리퍼런스에 데이터를 임시 저장하기 위한 함수
+    private void saveState(){
+        SharedPreferences preferences = getSharedPreferences("tmp_storage", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("Title", scheduleTitle.getText().toString()); // 제목을 쉐어드 프리퍼런스에 임시 저장
+        editor.putString("Date", scheduleDate.getText().toString()); // 날짜를 쉐어드 프리퍼런스에 임시 저장
+        editor.putString("Time", scheduleTime.getText().toString()); // 시간을 쉐어드 프리퍼런스에 임시 저장
+        editor.putString("current", peopleNotion.getText().toString()); // 가능 인원수를 쉐어드 프리퍼런스에 임시 저장
+        editor.putString("register", peopleNum.getText().toString()); // 최대 인원수를 쉐어드 프리퍼런스에 임시 저장
 
-        Log.d("MyTag", "Title: " + Title);
-        Log.d("MyTag", "Date: " + Date);
+        String sId = String.valueOf(id); // 미팅의 고유 아이디를 String 형으로 형변환함
 
-        String sId = String.valueOf(id);
-
-        outState.putString("id", sId);
-        outState.putString("Title", Title);
-        outState.putString("Date", Date);
-        outState.putString("Time", Time);
-        outState.putString("current", current);
-        outState.putString("register", register);
+        editor.putString("id", sId); // 미팅의 고유 아이디를 쉐어드 프리퍼런스에 임시 저장
+        editor.commit(); // 데이터를 저장함
     }
 
-    private void inputScheduleMeeting(int id, String uid, String scheduleTitle, String formattedDate1, String formattedTime1,
+    // 쉐더프 프리퍼런스에서 데이터를 가져옴
+    private void restoreState(){
+        SharedPreferences preferences = getSharedPreferences("tmp_storage", MODE_PRIVATE);
+        if (preferences.contains("Title")) {
+            String Title = preferences.getString("Title", null);
+            String Date = preferences.getString("Date", null);
+            String Time = preferences.getString("Time", null);
+            String current = preferences.getString("current", null);
+            String register = preferences.getString("register", null);
+            String Sid = preferences.getString("id", null);
+
+            scheduleTitle.setText(Title);
+            scheduleDate.setText(Date);
+            scheduleTime.setText(Time);
+            peopleNotion.setText(current);
+            peopleNum.setText(register);
+            id = Integer.parseInt(Sid);
+        }
+    }
+
+    private void deleteStorage(){
+        Context context = getApplicationContext();
+        context.getSharedPreferences("tmp_storage", Context.MODE_PRIVATE).edit().clear().commit();
+        context.deleteFile("tmp_storage.xml");
+    }
+
+    // onSaveInstanceState 메소드를 사용해서 데이터를 임시 저장함
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState){
+//        super.onSaveInstanceState(outState);
+//        String Title = scheduleTitle.getText().toString(); // 제목
+//        String Date = scheduleDate.getText().toString(); // 날짜
+//        String Time = scheduleTime.getText().toString(); // 시간
+//        String current = peopleNotion.getText().toString(); // 가능 인원수
+//        String register = peopleNum.getText().toString(); // 최대 인원수
+//
+//        String sId = String.valueOf(id);
+//
+//        outState.putString("id", sId);
+//        outState.putString("Title", Title);
+//        outState.putString("Date", Date);
+//        outState.putString("Time", Time);
+//        outState.putString("current", current);
+//        outState.putString("register", register);
+//    }
+
+    private void inputScheduleMeeting(int id, String uid, String scheduleTitle,
                                       String maxNum, String placeName, String placeAddress, String y, String x){
         String serverUrl = "http://3.38.213.196/schedule/inputSchedule.php";
+
+
+            SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat timeFormat1 = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM 월 d일 (E)", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("a h:mm", Locale.getDefault());
+
+            String dateStr = scheduleDate.getText().toString();
+            String timeStr = scheduleTime.getText().toString();
+
+            Date date = null;
+            Date time = null;
+            try{
+                date = dateFormat.parse(dateStr);
+                time = timeFormat.parse(timeStr);
+            }catch (ParseException e){
+                e.printStackTrace();
+            }
 
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder()
                 .add("meeting_seq", String.valueOf(id))
                 .add("user_seq", uid)
                 .add("schedule_title", scheduleTitle)
-                .add("schedule_date", formattedDate1)
-                .add("schedule_time", formattedTime1)
+                .add("schedule_date", dateFormat1.format(date))
+                .add("schedule_time", timeFormat1.format(time))
                 .add("schedule_member_max", maxNum)
                 .add("schedule_place_name", placeName)
                 .add("schedule_place_address", placeAddress)
@@ -255,9 +316,7 @@ public class scheduleMeetingInput extends AppCompatActivity {
 
                         // scheduleDate TextView에 선택된 날짜 표시
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM 월 d일 (E)", Locale.getDefault());
-                        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                         String formattedDate = dateFormat.format(calendar.getTime());
-                        formattedDate1 = dateFormat1.format(calendar.getTime());
                         scheduleDate.setText(formattedDate);
                     }
                 },
@@ -280,12 +339,9 @@ public class scheduleMeetingInput extends AppCompatActivity {
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
-
                         // scheduleTime TextView에 선택된 시간 표시
                         SimpleDateFormat timeFormat = new SimpleDateFormat("a h:mm", Locale.getDefault());
-                        SimpleDateFormat timeFormat1 = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
                         String formattedTime = timeFormat.format(calendar.getTime());
-                        formattedTime1 = timeFormat1.format(calendar.getTime());
                         scheduleTime.setText(formattedTime);
                     }
                 },
@@ -295,6 +351,42 @@ public class scheduleMeetingInput extends AppCompatActivity {
         );
 
         timePickerDialog.show();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart called");
+        System.out.println("onStart called");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume called");
+        System.out.println("onResume called");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause called");
+        System.out.println("onPause called");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop called");
+        System.out.println("onStop called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        deleteStorage();
+        Log.d(TAG, "onDestroy called");
+        System.out.println("onDestroy called");
     }
 
 }

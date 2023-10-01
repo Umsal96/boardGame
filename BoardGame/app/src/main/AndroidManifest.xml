@@ -24,6 +24,9 @@
         android:theme="@style/Theme.BoardGame"
         tools:targetApi="31">
         <activity
+            android:name=".getMeeting1"
+            android:exported="false" />
+        <activity
             android:name=".scheduleMeetingInput"
             android:exported="false" />
         <activity
