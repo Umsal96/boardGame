@@ -3,6 +3,7 @@ package com.example.boardgame;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -51,6 +52,9 @@ public class getMeeting extends AppCompatActivity {
     private Button intoBoard; // 게시글 작성 버튼
     private RecyclerView scheduleRecyclerView;
 
+    ConstraintLayout constraintLayout; // constraintLayout 변수 설정
+
+    private TextView textView14; // 일정이 없습니다 라는 텍스트뷰
     ArrayList<ScheduleItem> st = new ArrayList<>();
 
     meetingVO vo = new meetingVO();
@@ -76,6 +80,8 @@ public class getMeeting extends AppCompatActivity {
         button4 = findViewById(R.id.button4);
         intoSchedule = findViewById(R.id.intoSchedule);
         intoBoard = findViewById(R.id.intoBoard);
+        constraintLayout = findViewById(R.id.constraintLayout);
+        textView14 = findViewById(R.id.textView14);
 
         getList(id);
 
@@ -148,8 +154,9 @@ public class getMeeting extends AppCompatActivity {
         });
     } // end create
 
+    // 일정 리스트를 가져옴
     private void getList(int id){
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/schedule/getSchedule.php").newBuilder();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/schedule/getScheduleList.php").newBuilder();
         urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가
         String url = urlBuilder.build().toString();
         JsonToData jt = new JsonToData(); // 받아온 json을 vo객체에 담는 함수가 있는 클래스
@@ -179,7 +186,13 @@ public class getMeeting extends AppCompatActivity {
                         @Override
                         public void run() {
                             scheduleAdapter.notifyDataSetChanged();
-
+                            if(st.size() == 0){
+                                constraintLayout.setVisibility(View.GONE);
+                                textView14.setVisibility(View.VISIBLE);
+                            } else {
+                                textView14.setVisibility(View.GONE);
+                                constraintLayout.setVisibility(View.VISIBLE);
+                            }
                         }
                     });
 
