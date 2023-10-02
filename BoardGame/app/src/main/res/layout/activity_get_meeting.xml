@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".getMeeting">
+    android:orientation="vertical"
+    tools:context=".getMeeting1">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="412dp"
-            android:layout_height="122dp"
-            android:layout_marginTop="47dp"
-            app:layout_constraintEnd_toEndOf="parent"
+        <ImageButton
+            android:id="@+id/backPage"
+            android:layout_width="44dp"
+            android:layout_height="50dp"
+            android:background="#00000000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:scaleType="centerCrop"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:srcCompat="@drawable/arrow_back_24px" />
 
         <TextView
             android:id="@+id/titleName1"
-            android:layout_width="234dp"
-            android:layout_height="46dp"
+            android:layout_width="323dp"
+            android:layout_height="match_parent"
             android:text="모임 1번 입니다."
             android:textColor="@color/black"
             android:textSize="27dp"
@@ -33,178 +33,6 @@
             app:layout_constraintBottom_toTopOf="@+id/imageView2"
             app:layout_constraintStart_toEndOf="@+id/backPage"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageButton
-            android:id="@+id/backPage"
-            android:layout_width="44dp"
-            android:layout_height="50dp"
-            android:background="#00000000"
-            app:srcCompat="@drawable/arrow_back_24px"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/meetingContent"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="27dp"
-            android:text="모임 내용"
-            android:textSize="15dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/titleName2" />
-
-        <TextView
-            android:id="@+id/titleName2"
-            android:layout_width="360dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="17dp"
-            android:layout_marginEnd="27dp"
-            android:text="모임 이름"
-            android:textColor="@color/black"
-            android:textSize="22dp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewPeople" />
-
-        <ImageButton
-            android:id="@+id/updateMeeting"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginTop="9dp"
-            android:layout_marginEnd="39dp"
-            android:background="@drawable/circle"
-            android:backgroundTint="@color/black"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2"
-            app:srcCompat="@drawable/edit_24px" />
-
-        <ImageButton
-            android:id="@+id/viewPeople"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="246dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/circle"
-            android:backgroundTint="@color/black"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2"
-            app:srcCompat="@drawable/groups_24px__1_" />
-
-        <TextView
-            android:id="@+id/meetingSchedule"
-            android:layout_width="360dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="27dp"
-            android:text="모임 일정"
-            android:textColor="@color/black"
-            android:textSize="22dp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/meetingContent" />
-
-        <Button
-            android:id="@+id/intoBoard"
-            android:layout_width="360dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="27dp"
-            android:text="작성하기"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView19" />
-
-        <Button
-            android:id="@+id/button4"
-            android:layout_width="360dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="27dp"
-            android:text="가입하기"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/intoBoard" />
-
-        <Button
-            android:id="@+id/intoSchedule"
-            android:layout_width="360dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="27dp"
-            android:text="모임 일정 만들기"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout" />
-
-        <TextView
-            android:id="@+id/textView18"
-            android:layout_width="360dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="27dp"
-            android:text="게시판"
-            android:textColor="@color/black"
-            android:textSize="22dp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/intoSchedule" />
-
-        <TextView
-            android:id="@+id/textView19"
-            android:layout_width="360dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="27dp"
-            android:text="아직 게시글이 없습니다."
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView18" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
-            android:layout_width="413dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/intoSchedule"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/meetingSchedule">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/scheduleRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageButton
             android:id="@+id/moreMenu"
@@ -215,25 +43,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/more_horiz_24px" />
+    </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView14"
-            android:layout_width="360dp"
-            android:layout_height="49dp"
-            android:layout_marginStart="27dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="27dp"
-            android:layout_marginBottom="15dp"
-            android:text="일정이 없습니다"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@+id/intoSchedule"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/meetingSchedule" />
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/button_meeting_navigationView"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="top"
+        app:itemIconTint="@drawable/menu_selector_color"
+        app:itemTextColor="@drawable/menu_selector_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/meeting_menu"
+        />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-</ScrollView>
+    <FrameLayout
+        android:id="@+id/meetingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        ></FrameLayout>
+</LinearLayout>

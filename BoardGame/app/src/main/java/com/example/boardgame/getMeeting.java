@@ -3,31 +3,20 @@ package com.example.boardgame;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.example.boardgame.Adapter.ScheduleAdapter;
-import com.example.boardgame.item.ScheduleItem;
-import com.example.boardgame.utility.JsonToData;
-import com.example.boardgame.vo.meetingVO;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,112 +27,60 @@ import okhttp3.Response;
 
 public class getMeeting extends AppCompatActivity {
 
-    ScheduleAdapter scheduleAdapter;
-    private ImageView imageView2; // 모임의 대표 이미지
-    private TextView titleName1; // 대표 이미지 위에 표시되는 모임 이름
-    private TextView titleName2; // 대표 이미지 밑에 표시되는 모임 이름
-    private TextView meetingContent; // 모임의 내용이 표시
-    private ImageButton backPage; // 모임 리스트 페이지로 이동하는 버튼
-    private ImageButton updateMeeting; // 모임 수정 페이지로 넘어가는 버튼
-    private ImageButton viewPeople; // 모임 신청자와 모임 참여자를 볼수있는 페이지로 넘어가는 버튼
-    private ImageButton moreMenu; // 모임 탈퇴 모임장 위임 등 여러 선택지를 보여주는 버튼
-    private Button button4; // 모임 가입 버튼
-    private Button intoSchedule; // 모임일정 만들기 버튼
-    private Button intoBoard; // 게시글 작성 버튼
-    private RecyclerView scheduleRecyclerView;
+    getMeetingHome getMeetingHome; // 변수 생성 getMeeting 페이지의 홈 페이지
+    getMeetingBoard getMeetingBoard; // 변수 생성 getMeeting 페이지의 게시글 페이지
 
-    ConstraintLayout constraintLayout; // constraintLayout 변수 설정
-
-    private TextView textView14; // 일정이 없습니다 라는 텍스트뷰
-    ArrayList<ScheduleItem> st = new ArrayList<>();
-
-    meetingVO vo = new meetingVO();
-
+    private ImageButton backPage;
+    private ImageButton moreMenu;
+    private TextView titleName1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_meeting);
 
-        // 인텐트에서 정보를 가져옴
-        Intent intent = getIntent();
-        // 꺼낸 id 는 미팅 고유 아이디이고 이 아이디를 가지고있는 컬럼의 정보를 가져옴
-        int id = intent.getIntExtra("id", 0);
-
-        imageView2 = findViewById(R.id.imageView2);
-        titleName1 = findViewById(R.id.titleName1);
-        titleName2 = findViewById(R.id.titleName2);
-        meetingContent = findViewById(R.id.meetingContent);
         backPage = findViewById(R.id.backPage);
-        updateMeeting = findViewById(R.id.updateMeeting);
-        viewPeople = findViewById(R.id.viewPeople);
         moreMenu = findViewById(R.id.moreMenu);
-        button4 = findViewById(R.id.button4);
-        intoSchedule = findViewById(R.id.intoSchedule);
-        intoBoard = findViewById(R.id.intoBoard);
-        constraintLayout = findViewById(R.id.constraintLayout);
-        textView14 = findViewById(R.id.textView14);
+        titleName1 = findViewById(R.id.titleName1);
 
-        getList(id);
+        Intent intent = getIntent(); // 외부에서 받아온 인텐트를 변수에 할당
+        int chPage = intent.getIntExtra("where", 0);
+        int id = intent.getIntExtra("id", 0); // 미팅의 고유 아이디를 가져옴
 
-        scheduleRecyclerView = findViewById(R.id.scheduleRecyclerView);
+        // 번들에 데이터를 밤음
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", id);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        // 페이지 연결
+        getMeetingHome = new getMeetingHome();
+        getMeetingHome.setArguments(bundle);
+        getMeetingBoard = new getMeetingBoard();
 
-        scheduleRecyclerView.setLayoutManager(linearLayoutManager);
+        getMeetingName(id);
 
-        scheduleAdapter = new ScheduleAdapter(st);
+        NavigationBarView MainNavigationBarView = findViewById(R.id.button_meeting_navigationView); // 네이게이션 바 설정
+        if(chPage == 0 || chPage == 1){ // 인텐트에 들어있던 where 의 value를 확인해서 만약 1 또는 0 이면 getMeetingHome을 프레그먼트에 표시
+            getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingHome).commit();
+            MainNavigationBarView.setSelectedItemId(R.id.main);
+        }
 
-        scheduleRecyclerView.setAdapter(scheduleAdapter);
+        if(chPage != 0 && chPage == 2){ // 인텐트에 들어있던 where 의 value를 확인해서 만약 0이 아니고 2이면 getMeetingBoard를 프레그먼트에 표시
+            getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoard).commit();
+            MainNavigationBarView.setSelectedItemId(R.id.board);
+        }
 
-
-        getMeeting(id); // 정보 요청 함수
-
-        System.out.println("id : " + id);
-
-        intoSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(getMeeting.this, scheduleMeetingInput.class);
-                intent1.putExtra("id", Integer.parseInt(vo.getMeetingSeq()));
-                intent1.putExtra("cafeName", vo.getMeetingPlaceName());
-                intent1.putExtra("cafeAddress", vo.getMeetingAddress());
-                intent1.putExtra("x", vo.getMeetingLnt());
-                intent1.putExtra("y", vo.getMeetingLat());
-                intent1.putExtra("maxNum", vo.getMeetingMembers());
-                intent1.putExtra("currentNum", vo.getMeetingCurrent());
-                startActivity(intent1);
-            }
-        });
-
-        backPage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(getMeeting.this, main.class);
-                intent1.putExtra("where", 1);
-                startActivity(intent1);
-            }
-        });
-
-        updateMeeting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent1 = new Intent(getMeeting.this, updateMeeting.class);
-                intent1.putExtra("id", id);
-                startActivity(intent1);
-            }
-        });
-
+        // ... 버튼을 클릭했을때 실행되는 이벤트
         moreMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popupMenu = new PopupMenu(getMeeting.this, v); // 팝업매뉴 등록
+                PopupMenu popupMenu = new PopupMenu(getMeeting.this, v); // 팝업메뉴 등록
                 getMenuInflater().inflate(R.menu.meeting_select_menu, popupMenu.getMenu());
+
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         if(item.getItemId() == R.id.action_meeting_out){
-                            showMyDialog(id);
-                        } else if(item.getItemId() == R.id.action_meeting_delegate){
+                            showDeleteDialog(id);
+                        }else if(item.getItemId() == R.id.action_meeting_delegate){
                             System.out.println("클릭되었습니다.");
                         }
                         return true;
@@ -152,14 +89,44 @@ public class getMeeting extends AppCompatActivity {
                 popupMenu.show();
             }
         });
-    } // end create
 
-    // 일정 리스트를 가져옴
-    private void getList(int id){
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/schedule/getScheduleList.php").newBuilder();
+        // 뒤로 가기 버튼을 눌렀을때
+        backPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 메인 페이지로 이동
+                Intent intent1 = new Intent(getMeeting.this, main.class);
+                // 그 중에서 어디 페이지로 이동할건지 결정  1은 미팅 페이지
+                intent1.putExtra("where", 1);
+                startActivity(intent1);
+            }
+        });
+
+        // 네비게이션 바를 클릭했을때 프레그먼트에 어떤것을 표시할지 지정하는 이벤트
+        MainNavigationBarView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                int id = item.getItemId(); // 클릭된 아이템의 아이디
+
+                switch (id){
+                    case R.id.main:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingHome).commit();
+                        return true;
+                    case R.id.board:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoard).commit();
+                        return true;
+                }
+                return false;
+            }
+        });
+    } // end onCreate
+
+    // 미팅 이름을 받아오는 메소드
+    private void getMeetingName(int id){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingTitle.php").newBuilder();
         urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가
         String url = urlBuilder.build().toString();
-        JsonToData jt = new JsonToData(); // 받아온 json을 vo객체에 담는 함수가 있는 클래스
 
         Request request = new Request.Builder()
                 .url(url)
@@ -177,32 +144,20 @@ public class getMeeting extends AppCompatActivity {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
-                    System.out.println(responseData);
-                    if(jt.jsonSchedule(responseData) != null){
-                        st.addAll(jt.jsonSchedule(responseData));
-                    }
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            scheduleAdapter.notifyDataSetChanged();
-                            if(st.size() == 0){
-                                constraintLayout.setVisibility(View.GONE);
-                                textView14.setVisibility(View.VISIBLE);
-                            } else {
-                                textView14.setVisibility(View.GONE);
-                                constraintLayout.setVisibility(View.VISIBLE);
-                            }
+                            titleName1.setText(responseData);
                         }
                     });
-
                 }
-            } // end onResponse
+            }
         });
-    }
+    } // end getMeetingName
 
-    // 다이얼로그 를 표시하고 만약 확인을 눌렀을때 미팅 탈퇴및 삭제를 하는 함수를 실행시심
-    public void showMyDialog(int id){
+    // 삭제 관련된 다이얼로그 표시
+    private void showDeleteDialog(int id){
         AlertDialog.Builder builder = new AlertDialog.Builder(getMeeting.this);
         builder.setTitle("경고");
         builder.setMessage("모임에 사람이 없어 탈퇴시 모임이 삭제됩니다.");
@@ -225,6 +180,7 @@ public class getMeeting extends AppCompatActivity {
         dialog.show();
     }
 
+    // 해당 미팅 삭제 요청 메소드
     private void delete(int id){
         // 요청할 url 등록
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/deleteMeeting.php").newBuilder();
@@ -263,73 +219,5 @@ public class getMeeting extends AppCompatActivity {
         });
 
 
-    }
-
-    // 미팅 정보를 가져오는 함수
-    private void getMeeting(int id){
-        // 요청할 url 등록
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeeting.php").newBuilder();
-        urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가
-        String url = urlBuilder.build().toString(); // 최종 url 생성
-
-        // Request 객체 생성
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        // client 객체 생성
-        OkHttpClient client = new OkHttpClient();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if(response.isSuccessful()){
-                    String responseData = response.body().string();
-                    JsonToData jt = new JsonToData(); // 받아온 json을 vo객체에 담는 함수가 있는 클래스
-                    vo = jt.jsonMeetingGet(responseData);
-
-                    // UI 업데이트는 메인 스레드에서 실행해야 함
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            titleName1.setText(vo.getMeetingName()); // 모임의 이름을 설정함
-                            titleName2.setText(vo.getMeetingName()); // 모임의 이름을 설정함
-                            meetingContent.setText(vo.getMeetingContent()); // 모임의 내용을 설정함
-
-                            if (vo.getMeetingUrl() != null && !vo.getMeetingUrl().equals("null") && !vo.getMeetingUrl().equals("")) {
-                                System.out.println("정상적인 이미지");
-                                System.out.println("url : " + vo.getMeetingUrl());
-                                Glide.with(getApplicationContext()).load("http://3.38.213.196" + vo.getMeetingUrl()).into(imageView2);
-                            } else {
-                                System.out.println("url : " + vo.getMeetingUrl());
-                                System.out.println("아닌이미지");
-                                imageView2.setImageResource(R.drawable.img);
-                            }
-
-                            int userSeq = Integer.parseInt(vo.getUserSeq()); // 미팅 테이블에 있는 유저 아이디
-
-                            // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
-                            // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
-                            SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
-                            // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
-                            int userId = Integer.parseInt(sharedPreferences.getString("userId", ""));
-                            if(userSeq == userId){
-                                updateMeeting.setVisibility(View.VISIBLE);
-                            }else {
-                                updateMeeting.setVisibility(View.GONE);
-                            }
-
-                        }
-                    });
-                } else {
-                    Toast.makeText(getApplicationContext(), "데이터를 가져오는데 실패했습니다 : " + response.body().string(), Toast.LENGTH_SHORT).show();
-                }
-
-            }
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(getApplicationContext(), "데이터를 가져오는데 실패했습니다 : " + call.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

@@ -24,16 +24,13 @@
         android:theme="@style/Theme.BoardGame"
         tools:targetApi="31">
         <activity
-            android:name=".getMeeting1"
+            android:name=".getMeeting"
             android:exported="false" />
         <activity
             android:name=".scheduleMeetingInput"
             android:exported="false" />
         <activity
             android:name=".updateMeeting"
-            android:exported="false" />
-        <activity
-            android:name=".getMeeting"
             android:exported="false" />
         <activity
             android:name=".kakaoMap"
