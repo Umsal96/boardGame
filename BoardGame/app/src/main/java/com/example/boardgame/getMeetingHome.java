@@ -3,11 +3,14 @@ package com.example.boardgame;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +28,13 @@ import com.example.boardgame.Adapter.ScheduleAdapter;
 import com.example.boardgame.item.ScheduleItem;
 import com.example.boardgame.utility.JsonToData;
 import com.example.boardgame.vo.meetingVO;
+import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.ArrowPositionRules;
+import com.skydoves.balloon.Balloon;
+import com.skydoves.balloon.BalloonAnimation;
+import com.skydoves.balloon.BalloonSizeSpec;
+import com.skydoves.balloon.IconGravity;
+import com.skydoves.balloon.OnBalloonClickListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,19 +54,20 @@ public class getMeetingHome extends Fragment {
     private TextView meetingContent; // 모임의 내용이 표시
     private ImageButton updateMeeting; // 모임 수정 페이지로 넘어가는 버튼
     private ImageButton viewPeople; // 모임 신청자와 모임 참여자를 볼수있는 페이지로 넘어가는 버튼
+    private ImageButton viewCafe;
     private Button button4; // 모임 가입 버튼
     private Button intoSchedule; // 모임일정 만들기 버튼
     private Button intoBoard; // 게시글 작성 버튼
     private RecyclerView scheduleRecyclerView;
     private TextView textView14; // 일정이 없습니다 라는 텍스트뷰
 
+    private Balloon balloon;
     ConstraintLayout constraintLayout; // constraintLayout 변수 설정
-
     ArrayList<ScheduleItem> st = new ArrayList<>();
-
     meetingVO vo = new meetingVO();
-
     int id; // 미팅의 고유 아이디
+
+    private LifecycleOwner lifecycleOwner = this;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,6 +79,7 @@ public class getMeetingHome extends Fragment {
         meetingContent = view.findViewById(R.id.meetingContent); // 모임의 내용이 표시
         updateMeeting = view.findViewById(R.id.updateMeeting); // 모임 수정 페이지로 넘어가는 버튼
         viewPeople = view.findViewById(R.id.viewPeople); // 모임 신청자와 모임 참여자를 볼수있는 페이지로 넘어가는 버튼
+        viewCafe = view.findViewById(R.id.viewCafe);
         button4 = view.findViewById(R.id.button4); // 모임 가입 버튼
         intoSchedule = view.findViewById(R.id.intoSchedule); // 모임일정 만들기 버튼
         intoBoard = view.findViewById(R.id.intoBoard); // 게시글 작성 버튼
@@ -92,7 +104,6 @@ public class getMeetingHome extends Fragment {
         getList(id); // 일정 리스트 받아오기
 
         getMeeting(id); // 정보 요청 함수
-
         updateMeeting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,6 +125,13 @@ public class getMeetingHome extends Fragment {
                 intent1.putExtra("maxNum", vo.getMeetingMembers());
                 intent1.putExtra("currentNum", vo.getMeetingCurrent());
                 startActivity(intent1);
+            }
+        });
+
+        viewCafe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                balloon.showAlignStart(v);
             }
         });
 
@@ -194,6 +212,25 @@ public class getMeetingHome extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
+                            balloon = new Balloon.Builder(getContext())
+                                    .setArrowSize(10)
+                                    .setArrowOrientation(ArrowOrientation.START)
+                                    .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                                    .setArrowPosition(0.5f)
+                                    .setWidth(BalloonSizeSpec.WRAP)
+                                    .setHeight(65)
+                                    .setTextSize(15f)
+                                    .setCornerRadius(4f)
+                                    .setAlpha(0.9f)
+                                    .setText(vo.getMeetingPlaceName() + "<br>" + vo.getMeetingAddress())
+                                    .setTextColor(ContextCompat.getColor(getContext(), R.color.black))
+                                    .setTextIsHtml(true)
+                                    .setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white))
+                                    .setBalloonAnimation(BalloonAnimation.FADE)
+                                    .setLifecycleOwner(lifecycleOwner)
+                                    .build();
+
                             titleName2.setText(vo.getMeetingName()); // 모임의 이름을 설정함
                             meetingContent.setText(vo.getMeetingContent()); // 모임의 내용을 설정함
 

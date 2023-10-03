@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.boardgame.R;
-import com.example.boardgame.getMeeting1;
+import com.example.boardgame.getMeeting;
 import com.example.boardgame.item.MeetingItem;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.ViewHold
             public void onClick(View v) {
                 int position = viewHolder.getLayoutPosition();
                 int id = meetingItems.get(position).getMeetingId();
-                Intent intent = new Intent(v.getContext(), getMeeting1.class);
+                Intent intent = new Intent(v.getContext(), getMeeting.class);
                 intent.putExtra("id", id);
                 intent.putExtra("where", 1);
                 v.getContext().startActivity(intent);

@@ -59,7 +59,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="39dp"
+                android:layout_marginEnd="24dp"
                 android:background="@drawable/circle"
                 android:backgroundTint="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -70,11 +70,11 @@
                 android:id="@+id/viewPeople"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="246dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/circle"
                 android:backgroundTint="@color/black"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/updateMeeting"
                 app:layout_constraintTop_toBottomOf="@+id/imageView2"
                 app:srcCompat="@drawable/groups_24px__1_" />
 
@@ -82,12 +82,12 @@
                 android:id="@+id/viewCafe"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="168dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
                 android:background="@drawable/circle"
                 android:backgroundTint="@color/black"
                 android:src="@drawable/local_cafe_24px"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/viewPeople"
                 app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
             <TextView

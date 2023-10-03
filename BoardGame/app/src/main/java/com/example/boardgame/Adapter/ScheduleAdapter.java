@@ -89,12 +89,37 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
 
             Date date = inputFormat.parse(item.getSchedule_date());
             formatted = outputFormat.format(date);
+
+            // 현재 날짜 가져오기
+            Date currentDate = new Date();
+
+            // 날짜 차이 계산
+            long dayDifference = (date.getTime() - currentDate.getTime()) / (24 * 60 * 60 * 1000);
+
+            if(dayDifference >= 1){
+                // 1일 이상 남았을 경우
+                holder.scheduleDateCount.setText(dayDifference + " 일 남았습니다.");
+            } else {
+                // 1일 미만인 경우
+                // 시간 차이 계산
+                long hoursDifference = (date.getTime() - currentDate.getTime()) / (60 * 60 * 1000);
+
+                if(hoursDifference >= 1){
+                    // 1시간 이상 남았을 경우
+                    holder.scheduleDateCount.setText(hoursDifference + " 시간 남았습니다.");
+                }else {
+                    // 1시간 미만 남았을 경우
+                    // 분 단위로 계산
+                    long minutesDifference = (date.getTime() - currentDate.getTime()) / (60 * 1000);
+                    holder.scheduleDateCount.setText(minutesDifference + " 분 남았습니다.");
+                }
+            }
+
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
 
         holder.scheduleDate.setText(formatted + " " + formatTime);
-        holder.scheduleDateCount.setText("1일 남았습니다.");
         holder.scheduleCafeAddress.setText(item.getSchedule_place_address());
         holder.scheduleCafeName.setText(item.getSchedule_place_name());
         int max = item.getSchedule_member_max();

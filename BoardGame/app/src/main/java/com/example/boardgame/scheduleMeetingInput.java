@@ -329,6 +329,9 @@ public class scheduleMeetingInput extends AppCompatActivity {
         // 오늘 이전의 날짜는 선택 불가능하게 설정
         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
 
+        // 오늘 날짜도 선택 불가능하게 설정
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() - 1000);
+
         datePickerDialog.show();
     }
     private void showTimePickerDialog() {

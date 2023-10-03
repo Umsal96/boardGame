@@ -36,8 +36,22 @@
         android:layout_marginStart="96dp"
         android:layout_marginTop="36dp"
         android:text="참여"
+        android:visibility="gone"
         app:layout_constraintStart_toEndOf="@+id/scheduleItemTitle"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/scheduleCancel"
+        android:layout_width="66dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="36dp"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/black"
+        android:text="취소"
+        app:layout_constraintStart_toEndOf="@+id/scheduleItemTitle"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <TextView
         android:id="@+id/scheduleCafeAddress"
@@ -104,8 +118,8 @@
         android:layout_width="139dp"
         android:layout_height="19dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginBottom="4dp"
         android:text="카페의 이름"
-        app:layout_constraintStart_toEndOf="@+id/scheduleCafeAddress"
-        app:layout_constraintTop_toBottomOf="@+id/scheduleAttend" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/scheduleCafeAddress" />
 </androidx.constraintlayout.widget.ConstraintLayout>
