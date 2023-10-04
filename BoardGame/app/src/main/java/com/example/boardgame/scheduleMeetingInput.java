@@ -213,26 +213,6 @@ public class scheduleMeetingInput extends AppCompatActivity {
         context.deleteFile("tmp_storage.xml");
     }
 
-    // onSaveInstanceState 메소드를 사용해서 데이터를 임시 저장함
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState){
-//        super.onSaveInstanceState(outState);
-//        String Title = scheduleTitle.getText().toString(); // 제목
-//        String Date = scheduleDate.getText().toString(); // 날짜
-//        String Time = scheduleTime.getText().toString(); // 시간
-//        String current = peopleNotion.getText().toString(); // 가능 인원수
-//        String register = peopleNum.getText().toString(); // 최대 인원수
-//
-//        String sId = String.valueOf(id);
-//
-//        outState.putString("id", sId);
-//        outState.putString("Title", Title);
-//        outState.putString("Date", Date);
-//        outState.putString("Time", Time);
-//        outState.putString("current", current);
-//        outState.putString("register", register);
-//    }
-
     private void inputScheduleMeeting(int id, String uid, String scheduleTitle,
                                       String maxNum, String placeName, String placeAddress, String y, String x){
         String serverUrl = "http://3.38.213.196/schedule/inputSchedule.php";
@@ -326,11 +306,10 @@ public class scheduleMeetingInput extends AppCompatActivity {
                 Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
         );
 
-        // 오늘 이전의 날짜는 선택 불가능하게 설정
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-
-        // 오늘 날짜도 선택 불가능하게 설정
-        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() - 1000);
+        // 내일부터 선택할 수 있도록 설정
+        Calendar tomorrow = Calendar.getInstance();
+        tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+        datePickerDialog.getDatePicker().setMinDate(tomorrow.getTimeInMillis());
 
         datePickerDialog.show();
     }
