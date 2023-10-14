@@ -17,4 +17,14 @@
         android:checkable="true"
         android:checkableBehavior="single"
         />
+
+    <item
+        android:id="@+id/cheat"
+        android:enabled="true"
+        android:title="채팅"
+        app:showAsAction="always"
+        android:checkable="true"
+        android:checkableBehavior="single"
+        />
+
 </menu>

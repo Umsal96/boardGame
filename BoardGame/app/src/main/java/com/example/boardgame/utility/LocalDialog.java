@@ -33,7 +33,6 @@ public class LocalDialog extends Dialog {
     int id;
     String where; // 어느 엑티비티에서 왔는지 확인용
     String num;
-
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);

@@ -1,30 +1,31 @@
 package com.example.boardgame;
 
-
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.boardgame.Adapter.MeetingAdapter;
 import com.example.boardgame.item.MeetingItem;
 import com.example.boardgame.utility.JsonToData;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -34,56 +35,56 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class meeting extends Fragment {
+public class home extends Fragment {
 
     MeetingAdapter meetingAdapter;
-    private FloatingActionButton toMeeting; // 새글 작성 페이지로 이동용 버튼
 
-    private RecyclerView meetingRecyclerView; // 리사이클러뷰 변수 등록
-
+    private RecyclerView homeRecyclerView;
+    private TextView textView15;
     ArrayList<MeetingItem> mt = new ArrayList<>(); // meetingItem 객체의 어레이리스트 생성
-
     int page = 1, limit = 10;
+    int num = 0;
 
-    int num;
-
-    private ProgressBar progressBar; // 위에 프로세스 바
+    private ProgressBar progress_bar;
 
     private boolean isLoading = false;
-    private boolean firstLoad = true;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        Log.d("MyFragment", "onCreateView() 호출됨");
 
-        View view = inflater.inflate(R.layout.fragment_meeting, container, false);
 
-        progressBar = view.findViewById(R.id.progress_bar);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        progress_bar = view.findViewById(R.id.progress_bar);
+
+        textView15 = view.findViewById(R.id.textView15);
 
         // 중복 데이터를 가져오는것을 방지
         // 만약 mt 의 데이터가 비여있다면 데이터를 가져왔다는 것이고
         // 만약 mt 의 데이터가 비여있지 않다면 데이터가 없다는것이니까
         // mt의 데이터가 없을때만 데이터를 가져옴
         if(mt.isEmpty()){
-            getList(page, limit);
+            getList(page, limit); // 페이징처리로 데이터를 가져오기 위한 메소드
+
         }
 
-        toMeeting = view.findViewById(R.id.toMeeting);
-
-        meetingRecyclerView = view.findViewById(R.id.meetingRecyclerView);
+        homeRecyclerView = view.findViewById(R.id.homeRecyclerView);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
-        meetingRecyclerView.setLayoutManager(linearLayoutManager);
+        homeRecyclerView.setLayoutManager(linearLayoutManager);
 
         meetingAdapter = new MeetingAdapter(mt);
 
-        meetingRecyclerView.setAdapter(meetingAdapter);
+        homeRecyclerView.setAdapter(meetingAdapter);
 
-        meetingRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        homeRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
+                System.out.println("스크롤이벤트");
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
                 // 현재 표시된 아이템 수
@@ -95,7 +96,6 @@ public class meeting extends Fragment {
                 // 현재 스크롤된 아이템의 시작 인덱스
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-                // 스크롤 방향 체크 (위로 스크롤: dy < 0, 아래로 스크롤: dy > 0)
                 if (dy > 0) {
                     // 아래로 스크롤 중
 
@@ -105,7 +105,7 @@ public class meeting extends Fragment {
                     if (!isLoading && (visibleItemCount + firstVisibleItemPosition) >= (totalItemCount - threshold)) {
                         // 스크롤의 맨 아래 부분에 도달하면 추가 데이터를 가져와서 표시
                         System.out.println("최대 컬럼 : " + num);
-                        if (mt.size() < num) { // limit가 num보다 작을 때만 데이터를 가져오도록 수정
+                        if (mt.size() <= num) { // limit가 num보다 작을 때만 데이터를 가져오도록 수정
                             page++;
                             isLoading = true; // 데이터를 로딩 중임을 표시
                             getList(page, limit);
@@ -115,25 +115,21 @@ public class meeting extends Fragment {
             }
         });
 
-        toMeeting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), inputMeeting.class);
-                startActivity(intent);
-            }
-        });
-
-        // Inflate the layout for this fragment
         return view;
-    }// end onCreateView
+    } // end onCreateView
 
     private void getList(int page, int limit){
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingList.php").newBuilder();
+        // 쉐어드 프리퍼런스에 저장되어있는 유저 고유 아이디를 가져옴
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        // 쉐어드 프리퍼런스에서 userId 값을 가져옴
+        String userSeq = sharedPreferences.getString("userId", "");
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingJoinList.php").newBuilder();
         urlBuilder.addQueryParameter("page", String.valueOf(page));
         urlBuilder.addQueryParameter("limit", String.valueOf(limit));
+        urlBuilder.addQueryParameter("user_seq", userSeq);
         String url = urlBuilder.build().toString();
 
-        progressBar.setVisibility(View.VISIBLE); // 프로그레스 바를 표시합니다.
+        progress_bar.setVisibility(View.VISIBLE); // 프로그레스 바를 표시합니다.
 
         Request request = new Request.Builder()
                 .url(url)
@@ -146,6 +142,7 @@ public class meeting extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
+                    System.out.println(responseData);
                     JsonToData jt = new JsonToData();
 
                     Pair<Integer, ArrayList<MeetingItem>> data = jt.jsonToMeetingList(responseData);
@@ -153,29 +150,34 @@ public class meeting extends Fragment {
                     mt.addAll(data.second);
 
                     num = data.first;
-
-                    System.out.println("최대 1 갯수  : " + num);
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
-
                             meetingAdapter.notifyDataSetChanged(); // 데이터 변경 알림
                             isLoading = false;
-                            progressBar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
+                            progress_bar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
+                            if(mt.size() == 0){
+                                System.out.println("비어있음ㄴ");
+                                homeRecyclerView.setVisibility(View.GONE);
+                                textView15.setVisibility(View.VISIBLE);
+                            } else if(mt.size() != 0){
+                                textView15.setVisibility(View.GONE);
+                                System.out.println("비어있지 않음");
+                                homeRecyclerView.setVisibility(View.VISIBLE);
+                            }
                         }
                     }, 1000);
                 } else {
                     Toast.makeText(getContext(), response.body().string(), Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
+                    progress_bar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
                 }
             }
 
             @Override
             public void onFailure(Call call, IOException e) {
                 Toast.makeText(getContext(), call.toString(), Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
+                progress_bar.setVisibility(View.GONE); // 데이터 로딩이 끝나면 프로그레스 바를 숨깁니다.
             }
         });
     }
-
 }

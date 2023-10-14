@@ -4,7 +4,11 @@ import android.util.Pair;
 
 import com.example.boardgame.item.MeetingItem;
 import com.example.boardgame.item.ScheduleItem;
+import com.example.boardgame.item.ScheduleMemberItem;
+import com.example.boardgame.item.UserItem;
+import com.example.boardgame.item.UserNItem;
 import com.example.boardgame.vo.meetingVO;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +22,92 @@ import java.util.Locale;
 
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
+    // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
+    public ArrayList<UserNItem> jsonToScheduleMemberUserList(String json){
+        ArrayList<UserNItem> uni = new ArrayList<>();
 
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                UserNItem us = new UserNItem();
+
+                String userUrl = jsonObject.getString("user_url");
+                String userNick = jsonObject.getString("user_nickname");
+
+                us.setUserUrl(userUrl);
+                us.setUserNick(userNick);
+
+                uni.add(us);
+
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return uni;
+    }
+    public ArrayList<ScheduleMemberItem> jsonToScheduleMemberList(String json){
+        ArrayList<ScheduleMemberItem> SMi = new ArrayList<>();
+
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length() ; i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                ScheduleMemberItem smi = new ScheduleMemberItem();
+
+                String s_member_seq = jsonObject.getString("s_member_seq");
+                String schedule_seq = jsonObject.getString("schedule_seq");
+                String user_seq = jsonObject.getString("user_seq");
+                String schedule_date = jsonObject.getString("schedule_date");
+                String schedule_time = jsonObject.getString("schedule_time");
+
+                smi.setS_member_seq(Integer.parseInt(s_member_seq));
+                smi.setSchedule_seq(Integer.parseInt(schedule_seq));
+                smi.setUser_seq(Integer.parseInt(user_seq));
+                smi.setSchedule_date(schedule_date);
+                smi.setSchedule_time(schedule_time);
+
+                SMi.add(smi);
+            }
+        }catch(JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return SMi;
+    }
+    public ArrayList<UserItem> jsonToUserList(String json){
+
+        ArrayList<UserItem> Ui = new ArrayList<>();
+
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                UserItem ui = new UserItem();
+
+                String user_seq = jsonObject.getString("user_seq");
+                String member_leader = jsonObject.getString("member_leader");
+                String user_nickname = jsonObject.getString("user_nickname");
+                String user_url = jsonObject.getString("user_url");
+
+                ui.setUserSeq(Integer.parseInt(user_seq));
+                ui.setLeader(Integer.parseInt(member_leader));
+                ui.setUserNick(user_nickname);
+                ui.setUserUrl(user_url);
+
+                Ui.add(ui);
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return Ui;
+    }
     public ArrayList<ScheduleItem> jsonSchedule(String json){
 
         ArrayList<ScheduleItem> Si = new ArrayList<>();
