@@ -40,7 +40,20 @@
     $stmt->bindParam(':schedule_lat', $schedule_lat);
     $stmt->bindParam(':schedule_lnt', $schedule_lnt);
 
+    // 쿼리 실행
     $stmt->execute();
+
+    // 삽입된 meeting_seq 값을 가져옴
+    $lastScheduleSeq = $conn->lastInsertId();
+
+    $stmt1 = $conn->prepare("INSERT INTO schedule_member(schedule_seq, user_seq, into_schedule, meeting_seq)
+        VALUES(:schedule_seq, :user_seq, NOW(), :meeting_seq)");
+
+    $stmt1->bindParam(':schedule_seq', $lastScheduleSeq, PDO::PARAM_INT);
+    $stmt1->bindParam(':user_seq', $user_seq, PDO::PARAM_INT);
+    $stmt1->bindParam(':meeting_seq', $meeting_seq, PDO::PARAM_INT);
+
+    $stmt1->execute();
 
     $stmt->closeCursor();
     $conn = null;

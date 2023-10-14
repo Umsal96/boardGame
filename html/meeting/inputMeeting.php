@@ -55,11 +55,20 @@
     $stmt->bindParam(':meeting_url', $uploadDBDir, PDO::PARAM_STR);
     
     // 쿼리 실행
-    if($stmt->execute()){
-        echo $uploadDBDir;
-        echo '입력 성공';
-    } else {
-        echo '정보 저장하는 중 오류가 발생했습니다.';
-    }
+    $stmt->execute();
+
+    // 삽입된 meeting_seq 값을 가져옴
+    $lastMeetingSeq = $conn->lastInsertId();
+
+    $stmt1 = $conn->prepare("INSERT INTO member_table(user_seq, meeting_seq ,member_leader, member_create_date)
+            VALUES (:user_seq, :meeting_seq, :member_leader, NOW())");
+    $stmt1->bindParam(':user_seq', $user_id, PDO::PARAM_INT);
+    $stmt1->bindParam(':meeting_seq', $lastMeetingSeq, PDO::PARAM_INT);
+    $stmt1->bindValue(':member_leader', 1, PDO::PARAM_INT);
+
+    // 쿼리 실행
+    $stmt1->execute();
+
+    echo '입력 성공';
 
 ?>
