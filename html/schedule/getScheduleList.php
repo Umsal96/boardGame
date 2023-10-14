@@ -10,6 +10,8 @@
     // 모듈화된 db 연결
     $conn = connectToDatabase();
 
+    $conn->exec("SET time_zone = '+09:00'"); // KST는 UTC+9
+
     $id = $_GET['id']; // 받아온 모임 고유 아이디를 변수에 넣음
 
     // 현재 날짜와 시간을 구합니다
@@ -23,9 +25,10 @@
 
     // 날짜와 시간을 합처서 현 시간을 비교하는 쿼리
     $stmt = $conn->prepare("SELECT * FROM meeting_schedule_table 
-        WHERE meeting_seq = :meeting_seq AND CONCAT(schedule_date, ' ', schedule_time) > :current_datetime");
+        WHERE meeting_seq = :meeting_seq AND 
+        CONCAT(schedule_date, ' ', schedule_time) > DATE_ADD(NOW(), INTERVAL 30 MINUTE)");
     $stmt->bindParam(':meeting_seq', $id, PDO::PARAM_INT);
-    $stmt->bindParam(':current_datetime', $currentDateTimeStr, PDO::PARAM_STR);
+    // $stmt->bindParam(':current_datetime', $currentDateTimeStr, PDO::PARAM_STR);
     $stmt->execute();
 
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
