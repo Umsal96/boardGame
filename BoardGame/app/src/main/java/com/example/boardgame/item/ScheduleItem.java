@@ -3,8 +3,6 @@ package com.example.boardgame.item;
 import java.util.Date;
 
 public class ScheduleItem {
-
-
     private int scheduleSeq;
     private int userSeq;
     private int meetingSeq;

@@ -67,10 +67,7 @@ public class profile extends Fragment {
             circle.setImageResource(R.drawable.img2);
         }
 
-
-
         textView2.setText(nick);
-
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

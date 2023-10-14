@@ -1,12 +1,14 @@
 package com.example.boardgame;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -25,16 +27,22 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.boardgame.Adapter.ScheduleAdapter;
+import com.example.boardgame.Adapter.ScheduleUserAdapter;
 import com.example.boardgame.item.ScheduleItem;
+import com.example.boardgame.item.ScheduleMemberItem;
+import com.example.boardgame.item.UserItem;
+import com.example.boardgame.item.UserNItem;
+import com.example.boardgame.utility.FragToActData;
 import com.example.boardgame.utility.JsonToData;
+import com.example.boardgame.utility.OnItemClickListener;
+import com.example.boardgame.utility.ScheduleDialog;
+import com.example.boardgame.utility.UserDialog;
 import com.example.boardgame.vo.meetingVO;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
 import com.skydoves.balloon.BalloonAnimation;
 import com.skydoves.balloon.BalloonSizeSpec;
-import com.skydoves.balloon.IconGravity;
-import com.skydoves.balloon.OnBalloonClickListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,27 +55,28 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class getMeetingHome extends Fragment {
-
     ScheduleAdapter scheduleAdapter;
     private ImageView imageView2; // 모임의 대표 이미지
     private TextView titleName2; // 대표 이미지 밑에 표시되는 모임 이름
     private TextView meetingContent; // 모임의 내용이 표시
     private ImageButton updateMeeting; // 모임 수정 페이지로 넘어가는 버튼
-    private ImageButton viewPeople; // 모임 신청자와 모임 참여자를 볼수있는 페이지로 넘어가는 버튼
+    private ImageButton viewPeople; // 모임 신청자와 모임 참여자를 볼수있는 다이얼로그
     private ImageButton viewCafe;
     private Button button4; // 모임 가입 버튼
     private Button intoSchedule; // 모임일정 만들기 버튼
     private Button intoBoard; // 게시글 작성 버튼
     private RecyclerView scheduleRecyclerView;
     private TextView textView14; // 일정이 없습니다 라는 텍스트뷰
-
     private Balloon balloon;
     ConstraintLayout constraintLayout; // constraintLayout 변수 설정
     ArrayList<ScheduleItem> st = new ArrayList<>();
+    ArrayList<ScheduleMemberItem> smt = new ArrayList<>();
     meetingVO vo = new meetingVO();
     int id; // 미팅의 고유 아이디
-
+    ArrayList<UserItem> data;
     private LifecycleOwner lifecycleOwner = this;
+
+    private FragToActData fragToActData;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,17 +96,58 @@ public class getMeetingHome extends Fragment {
         constraintLayout = view.findViewById(R.id.constraintLayout);
         textView14 = view.findViewById(R.id.textView14);
 
+        fragToActData = (FragToActData) getContext();
+
         // 번들로 미팅의 고유 아이디를 받아옴
         Bundle bundle = getArguments();
         if(bundle != null){
             id = bundle.getInt("id", 0);
         }
 
+        // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
+        // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserData", Context.MODE_PRIVATE);
+        // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
+        int userId = Integer.parseInt(sharedPreferences.getString("userId", ""));
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                alertDialogBuilder.setTitle("알림");
+
+                alertDialogBuilder.setMessage("모임에 가입하시겠습니까?");
+                alertDialogBuilder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 유저가 모임에 가입함
+                        intoMeeting(userId, id);
+                    }
+                });
+                alertDialogBuilder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
+        getScheduleList(id); // 일정 맴버 리스트 받아오기
+
+        // 모임에 참가한 인원들을 보여주는 리사이클러뷰
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
 
         scheduleRecyclerView.setLayoutManager(linearLayoutManager);
-
-        scheduleAdapter = new ScheduleAdapter(st);
+        scheduleAdapter = new ScheduleAdapter(st, smt, userId, new OnItemClickListener() {
+            @Override
+            public void onItemClick(int ScheduleId) {
+                System.out.println("프레그먼트 내의 고유 아이디 : " + ScheduleId);
+                getScheduleUserList(ScheduleId);
+            }
+        });
 
         scheduleRecyclerView.setAdapter(scheduleAdapter);
 
@@ -110,6 +160,15 @@ public class getMeetingHome extends Fragment {
                 Intent intent1 = new Intent(getContext(), updateMeeting.class);
                 intent1.putExtra("id", id);
                 startActivity(intent1);
+            }
+        });
+
+        // 유저 리스트 다이얼로그 확인용
+        viewPeople.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserDialog userDialog = new UserDialog(getContext(), data);
+                userDialog.show();
             }
         });
 
@@ -128,6 +187,9 @@ public class getMeetingHome extends Fragment {
             }
         });
 
+        // 가입한 유저의 리스트를 가져옴
+        getUserList(id);
+
         viewCafe.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,6 +199,71 @@ public class getMeetingHome extends Fragment {
 
         return view;
     }
+
+    // 일정의 멤버 리스트를 받아오는 메소드
+    private void getScheduleList(int id){ // id는 미팅 고유 아이디
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/schedule/getScheduleMemberList.php").newBuilder();
+        urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가 모임 고유 아이디
+        String url = urlBuilder.build().toString();
+        JsonToData jt = new JsonToData(); // 받아온 json을 item객체에 담는 함수가 있는 클래스
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    System.out.println(responseData);
+                    smt.addAll(jt.jsonToScheduleMemberList(responseData));
+                }
+            }
+        });
+    }
+
+    private void intoMeeting(int userId, int meetingId){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/intoMeeting.php").newBuilder();
+        urlBuilder.addQueryParameter("userId", String.valueOf(userId));
+        urlBuilder.addQueryParameter("meetingId", String.valueOf(meetingId));
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    System.out.println(responseData);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "회원가입이 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    getUserList(id);
+                }
+            }
+        });
+    } // intoMeeting
 
     // 일정 리스트를 가져옴
     private void getList(int id){
@@ -156,16 +283,15 @@ public class getMeetingHome extends Fragment {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
             }
-
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
+                    System.out.println("일정");
                     System.out.println(responseData);
                     if(jt.jsonSchedule(responseData) != null){
                         st.addAll(jt.jsonSchedule(responseData));
                     }
-
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -244,19 +370,6 @@ public class getMeetingHome extends Fragment {
                                 imageView2.setImageResource(R.drawable.img);
                             }
 
-                            int userSeq = Integer.parseInt(vo.getUserSeq()); // 미팅 테이블에 있는 유저 아이디
-
-                            // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
-                            // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
-                            SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserData", Context.MODE_PRIVATE);
-                            // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
-                            int userId = Integer.parseInt(sharedPreferences.getString("userId", ""));
-                            if(userSeq == userId){
-                                updateMeeting.setVisibility(View.VISIBLE);
-                            }else {
-                                updateMeeting.setVisibility(View.GONE);
-                            }
-
                         }
                     });
                 } else {
@@ -267,6 +380,128 @@ public class getMeetingHome extends Fragment {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 Toast.makeText(getContext(), "데이터를 가져오는데 실패했습니다 : " + call.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    } // end getMeeting
+
+    // 모임에 참가한 인원을 가져오는 메소드
+    private void getScheduleUserList(int scheduleId){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/schedule/getScheduleMemberUserList.php").newBuilder();
+        urlBuilder.addQueryParameter("scheduleId", String.valueOf(scheduleId));
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    JsonToData jt = new JsonToData();
+                    String responseData = response.body().string();
+                    ArrayList<UserNItem> uni = jt.jsonToScheduleMemberUserList(responseData);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ScheduleDialog scheduleDialog = new ScheduleDialog(getContext(), uni);
+                            scheduleDialog.show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+    private void getUserList(int id){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getUserMeeting.php").newBuilder();
+        urlBuilder.addQueryParameter("meeting_seq", String.valueOf(id));
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    JsonToData jt = new JsonToData();
+
+                    data = jt.jsonToUserList(responseData);
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
+                            // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
+                            SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserData", Context.MODE_PRIVATE);
+                            // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
+                            int userId = Integer.parseInt(sharedPreferences.getString("userId", ""));
+
+                            boolean isUserJoined = false; // 유저가 모임가입이 됬었는지 확인
+                            boolean isLeader = false; // 유저가 방장인지 검사
+
+                            // 모임 인원 리스트중에서 모임장의 유저 고유 아이디를 찾기위한 방복문
+                            for (int i = 0; i < data.size(); i++) {
+                                if(data.get(i).getLeader() == 1){
+                                    fragToActData.onDataPass(data.get(i).getUserSeq(), data.size());
+                                    break;
+                                }
+                            }
+
+                            // 현재 유저가 방장인지 확인
+                            for (int i = 0; i < data.size(); i++) {
+                                if(data.get(i).getUserSeq() == userId){ // 가입이 된 유저다
+                                    if(data.get(i).getLeader() == 1){ // 방장이다.
+                                        isLeader = true;
+                                        isUserJoined = true;
+                                        System.out.println("리더입니다.");
+                                        break;
+                                    } else { // 방장은 아니다
+                                        isLeader = false;
+                                        isUserJoined = true;
+                                        System.out.println("리더가 아닙니다1");
+                                        break;
+                                    }
+                                }else {
+                                    System.out.println("가입된 유저가 아닙니다.1");
+                                }
+                            }
+
+                            if(!isUserJoined && !isLeader){ // 모임 가입된 유저가 아님
+                                button4.setVisibility(View.VISIBLE); // 회원가입 버튼
+                                updateMeeting.setVisibility(View.GONE); // 업데이트 버튼
+                                intoSchedule.setEnabled(false);
+                                intoBoard.setEnabled(false);
+                            } else if (isUserJoined && !isLeader) { // 모임가입된 유저인데 모임장이 아님
+                                button4.setVisibility(View.GONE);
+                                updateMeeting.setVisibility(View.GONE);
+                                intoSchedule.setEnabled(true);
+                                intoBoard.setEnabled(true);
+                            } else { // 모임 가입된 유저인데 모임장임
+                                button4.setVisibility(View.GONE);
+                                updateMeeting.setVisibility(View.VISIBLE);
+                                intoSchedule.setEnabled(true);
+                                intoBoard.setEnabled(true);
+                            }
+                        }
+                    });
+                }
             }
         });
     }

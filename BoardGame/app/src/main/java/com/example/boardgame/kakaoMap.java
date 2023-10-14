@@ -91,7 +91,6 @@ public class kakaoMap extends AppCompatActivity implements OnMapReadyCallback {
 
             int finalI = i;
             markers[i].setOnClickListener(new Overlay.OnClickListener() {
-
                 @Override
                 public boolean onClick(@NonNull Overlay overlay) {
                     LocalDialog localDialog = new LocalDialog(kakaoMap.this, kakaoMap.this ,voArrayList.get(finalI).getPlace_name(),

@@ -221,7 +221,7 @@ public class scheduleMeetingInput extends AppCompatActivity {
             SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat timeFormat1 = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM 월 d일 (E)", Locale.getDefault());
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 MM월 d일 (E)", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("a h:mm", Locale.getDefault());
 
             String dateStr = scheduleDate.getText().toString();
@@ -295,7 +295,7 @@ public class scheduleMeetingInput extends AppCompatActivity {
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
                         // scheduleDate TextView에 선택된 날짜 표시
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM 월 d일 (E)", Locale.getDefault());
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy년 MM월 d일 (E)", Locale.getDefault());
                         String formattedDate = dateFormat.format(calendar.getTime());
                         scheduleDate.setText(formattedDate);
                     }
