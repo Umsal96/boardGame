@@ -73,7 +73,6 @@ public class kakaoMap extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(@NonNull NaverMap naverMap) {
         this.naverMap = naverMap;
     }
-
     private void createMarkers(){
 
         for (int i = 0; i < voArrayList.size(); i++) {

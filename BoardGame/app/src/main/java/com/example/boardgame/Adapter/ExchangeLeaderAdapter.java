@@ -72,7 +72,6 @@ public class ExchangeLeaderAdapter extends RecyclerView.Adapter<ExchangeLeaderAd
             @Override
             public void onClick(View v) {
                 int position = viewHolder.getLayoutPosition();
-                System.out.println("클릭한 유저");
                 System.out.println("클릭한 유저의 고유 아이디 : " + ui.get(position).getUserSeq());
                 System.out.println("클릭한 모임의 리더 고유 아이디 : " + leaderUserId );
                 System.out.println("클릭한 모임의 고유 아이디 : " + meetingId);
