@@ -34,5 +34,13 @@
     $stmt1->bindParam(':meeting_seq', $meeting_seq, PDO::PARAM_INT);
     $stmt1->execute();
 
+    $stmt2 = $conn->prepare("DELETE FROM member_wait 
+        WHERE user_seq = :user_seq AND meeting_seq = :meeting_seq");
+
+    $stmt2->bindParam(':user_seq', $user_seq, PDO::PARAM_INT);
+    $stmt2->bindParam(':meeting_seq', $meeting_seq, PDO::PARAM_INT);
+
+    $stmt2->execute();
+    
     echo '입력 성공';
 ?>
