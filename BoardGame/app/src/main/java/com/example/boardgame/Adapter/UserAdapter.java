@@ -22,11 +22,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     // 뷰 홀더에 ui와 변수를 연결
     public static class ViewHolder extends RecyclerView.ViewHolder{
-
         private CircleImageView userUrl;
-
         private TextView userNick, leader;
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 

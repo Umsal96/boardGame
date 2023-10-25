@@ -204,6 +204,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
                         @Override
                         public void run() {
                             titleName1.setText(responseData);
+
                         }
                     });
                 }
@@ -308,6 +309,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "탈퇴가 왼료 되었습니다.", Toast.LENGTH_SHORT).show();
                         size--;
+
                     }
                 });
                 // meeting page 로 가능 인텐트
@@ -350,6 +352,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
                         public void run() {
                             ExchangeLeaderDialog exchangeLeaderDialog = new ExchangeLeaderDialog(getMeeting.this, ui, leaderUserId, id);
                             exchangeLeaderDialog.show();
+
                         }
                     });
                 }
@@ -384,7 +387,6 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(), "삭제가 왼료 되었습니다.", Toast.LENGTH_SHORT).show();
-
                     }
                 });
                 // meeting page 로 가능 인텐트

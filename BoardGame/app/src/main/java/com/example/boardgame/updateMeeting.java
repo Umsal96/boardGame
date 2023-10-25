@@ -378,6 +378,7 @@ public class updateMeeting extends AppCompatActivity {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
+
                         }
                     });
                     // 수정이 완료되면 수정된 페이지로 이동
@@ -451,6 +452,7 @@ public class updateMeeting extends AppCompatActivity {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
+
                         }
                     });
                     // 수정이 완료되면 수정된 페이지로 이동
@@ -464,6 +466,7 @@ public class updateMeeting extends AppCompatActivity {
                         @Override
                         public void run() {
                             Toast.makeText(getApplicationContext(), call.toString(), Toast.LENGTH_SHORT).show();
+
                         }
                     });
                 }
@@ -528,6 +531,7 @@ public class updateMeeting extends AppCompatActivity {
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
+
                         }
                     });
                     // 수정이 완료되면 수정된 페이지로 이동

@@ -7,6 +7,7 @@ import com.example.boardgame.item.ScheduleItem;
 import com.example.boardgame.item.ScheduleMemberItem;
 import com.example.boardgame.item.UserItem;
 import com.example.boardgame.item.UserNItem;
+import com.example.boardgame.item.WaitingItem;
 import com.example.boardgame.vo.meetingVO;
 import com.google.gson.JsonArray;
 
@@ -23,6 +24,56 @@ import java.util.Locale;
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
+
+    public ArrayList<WaitingItem> jsonToWaitingUserList(String json){
+        ArrayList<WaitingItem> wai = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                WaitingItem wi = new WaitingItem();
+
+                wi.setUserSeq(Integer.parseInt(jsonObject.getString("user_seq")));
+                wi.setMeetingSeq(Integer.parseInt(jsonObject.getString("meeting_seq")));
+                wi.setUserNick(jsonObject.getString("user_nickname"));
+                wi.setUserUrl(jsonObject.getString("user_url"));
+
+                wai.add(wi);
+
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return wai;
+    }
+    public ScheduleItem jsonToGetSchedule(String json){
+        try{
+            // JSON 문자열을 JSONObject 로 파싱
+            JSONObject jsonObject = new JSONObject(json);
+
+            // JSON 데이터에서 필요한 정보를 추출하여 meetingVO 객체에 설정
+            ScheduleItem scheduleItem = new ScheduleItem();
+            scheduleItem.setScheduleSeq(Integer.parseInt(jsonObject.getString("schedule_seq")));
+            scheduleItem.setUserSeq(Integer.parseInt(jsonObject.getString("user_seq")));
+            scheduleItem.setMeetingSeq(Integer.parseInt(jsonObject.getString("meeting_seq")));
+            scheduleItem.setScheduleTitle(jsonObject.getString("schedule_title"));
+            scheduleItem.setSchedule_date(jsonObject.getString("schedule_date"));
+            scheduleItem.setSchedule_time(jsonObject.getString("schedule_time"));
+            scheduleItem.setSchedule_member_max(Integer.parseInt(jsonObject.getString("schedule_member_max")));
+            scheduleItem.setSchedule_member_current(Integer.parseInt(jsonObject.getString("schedule_member_current")));
+            scheduleItem.setSchedule_place_name(jsonObject.getString("schedule_place_name"));
+            scheduleItem.setSchedule_place_address(jsonObject.getString("schedule_place_address"));
+            scheduleItem.setSchedule_lat(jsonObject.getString("schedule_lat"));
+            scheduleItem.setSchedule_lnt(jsonObject.getString("schedule_lnt"));
+            scheduleItem.setSchedule_create_date(jsonObject.getString("schedule_create_date"));
+            return scheduleItem;
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
     public ArrayList<UserNItem> jsonToScheduleMemberUserList(String json){
         ArrayList<UserNItem> uni = new ArrayList<>();
 
