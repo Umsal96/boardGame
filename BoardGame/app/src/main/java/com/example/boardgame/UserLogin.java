@@ -46,12 +46,10 @@ public class UserLogin extends AppCompatActivity {
     int skyBlueButton = Color.parseColor("#3498DB");
     // 버튼의 배경색을 회색으로 설정 (비활성화 상태에서의 색상)
     int grayButton = Color.parseColor("#CCCCCC");
-
     String phoneNumber;
     String email;
     String nick;
     String pass;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +115,6 @@ public class UserLogin extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 joinPassword.setBackgroundResource(R.drawable.border_layout);

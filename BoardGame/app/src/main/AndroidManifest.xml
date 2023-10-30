@@ -12,8 +12,12 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name=".myApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,6 +27,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BoardGame"
         tools:targetApi="31">
+        <activity
+            android:name=".inputMeetingBoard"
+            android:exported="false" />
         <activity
             android:name=".getMeeting"
             android:exported="false" />
@@ -79,6 +86,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.TestService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".service.socketService"
+            android:enabled="true"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

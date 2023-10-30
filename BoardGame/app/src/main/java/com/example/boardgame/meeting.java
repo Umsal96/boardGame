@@ -1,6 +1,7 @@
 package com.example.boardgame;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,19 +40,18 @@ public class meeting extends Fragment {
 
     MeetingAdapter meetingAdapter;
     private FloatingActionButton toMeeting; // 새글 작성 페이지로 이동용 버튼
-
     private RecyclerView meetingRecyclerView; // 리사이클러뷰 변수 등록
-
     ArrayList<MeetingItem> mt = new ArrayList<>(); // meetingItem 객체의 어레이리스트 생성
-
     int page = 1, limit = 10;
-
     int num;
-
     private ProgressBar progressBar; // 위에 프로세스 바
-
     private boolean isLoading = false;
     private boolean firstLoad = true;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        System.out.println("onCreate");
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class meeting extends Fragment {
         View view = inflater.inflate(R.layout.fragment_meeting, container, false);
 
         progressBar = view.findViewById(R.id.progress_bar);
+        System.out.println("onCreateView");
 
         // 중복 데이터를 가져오는것을 방지
         // 만약 mt 의 데이터가 비여있다면 데이터를 가져왔다는 것이고
@@ -125,7 +127,68 @@ public class meeting extends Fragment {
 
         // Inflate the layout for this fragment
         return view;
-    }// end onCreateView
+    }// end onCreateViews
+
+    @Override
+    public void onViewCreated(View view,
+                              Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println("onViewCreated");
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState){
+        super.onViewStateRestored(savedInstanceState);
+        System.out.println("onViewStateRestored");
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        System.out.println("onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println("onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        System.out.println("onPause");
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        System.out.println("onStop");
+    }
+
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+        System.out.println("onDestroyView");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        System.out.println("onSaveInstanceState");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("onDestroy");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("onDetach");
+    }
 
     private void getList(int page, int limit){
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingList.php").newBuilder();

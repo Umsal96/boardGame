@@ -56,6 +56,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         Intent intent = getIntent(); // 외부에서 받아온 인텐트를 변수에 할당
         int chPage = intent.getIntExtra("where", 0);
         int id = intent.getIntExtra("id", 0); // 미팅의 고유 아이디를 가져옴
+        int sk = intent.getIntExtra("sk", 0); // 유저 다이얼로그 보여줄지 말지 1 이면 보여줌 0이면 안보여줌
 
         // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
         // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
@@ -63,9 +64,10 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
         UserId = Integer.parseInt(sharedPreferences.getString("userId", ""));
 
-        // 번들에 데이터를 밤음
+        // 번들에 데이터를 담음
         Bundle bundle = new Bundle();
-        bundle.putInt("id", id);
+        bundle.putInt("id", id); // 모임의 고유 아이디
+        bundle.putInt("sk", sk); // 유저 다이얼로그 보여줄지 말지 1 이면 보여줌 0이면 안보여줌
 
         // 페이지 연결
         getMeetingHome = new getMeetingHome();
