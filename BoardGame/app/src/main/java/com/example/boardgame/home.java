@@ -48,12 +48,17 @@ public class home extends Fragment {
     private ProgressBar progress_bar;
 
     private boolean isLoading = false;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        System.out.println("onCreate");
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.d("MyFragment", "onCreateView() 호출됨");
-
+        System.out.println("onCreateView");
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
@@ -65,10 +70,9 @@ public class home extends Fragment {
         // 만약 mt 의 데이터가 비여있다면 데이터를 가져왔다는 것이고
         // 만약 mt 의 데이터가 비여있지 않다면 데이터가 없다는것이니까
         // mt의 데이터가 없을때만 데이터를 가져옴
-        if(mt.isEmpty()){
+//        if(mt.isEmpty()){
             getList(page, limit); // 페이징처리로 데이터를 가져오기 위한 메소드
-
-        }
+//        }
 
         homeRecyclerView = view.findViewById(R.id.homeRecyclerView);
 
@@ -118,6 +122,67 @@ public class home extends Fragment {
         return view;
     } // end onCreateView
 
+    @Override
+    public void onViewCreated(View view,
+                              Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+        System.out.println("onViewCreated");
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState){
+        super.onViewStateRestored(savedInstanceState);
+        System.out.println("onViewStateRestored");
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        System.out.println("onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.out.println("onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        System.out.println("onPause");
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        System.out.println("onStop");
+    }
+
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+        System.out.println("onDestroyView");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        System.out.println("onSaveInstanceState");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("onDestroy");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        System.out.println("onDetach");
+    }
+
     private void getList(int page, int limit){
         // 쉐어드 프리퍼런스에 저장되어있는 유저 고유 아이디를 가져옴
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserData", Context.MODE_PRIVATE);
@@ -146,7 +211,7 @@ public class home extends Fragment {
                     JsonToData jt = new JsonToData();
 
                     Pair<Integer, ArrayList<MeetingItem>> data = jt.jsonToMeetingList(responseData);
-
+                    mt.clear();
                     mt.addAll(data.second);
 
                     num = data.first;

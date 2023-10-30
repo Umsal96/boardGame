@@ -3,6 +3,7 @@ package com.example.boardgame.dialog;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,9 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.boardgame.Adapter.WaitingAdapter;
 import com.example.boardgame.R;
 import com.example.boardgame.item.WaitingItem;
+import com.example.boardgame.service.socketService;
+import com.example.boardgame.socket.clientSocket;
 import com.example.boardgame.utility.JsonToData;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -31,6 +37,9 @@ public class WaitingDialog extends Dialog {
     private RecyclerView waitRecyclerView;
     ArrayList<WaitingItem> wi;
     Activity activity;
+    int userId; // 보내는 유저의 고유 아이디
+
+//    clientSocket cSocket;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -40,6 +49,7 @@ public class WaitingDialog extends Dialog {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         waitRecyclerView.setLayoutManager(linearLayoutManager);
         waitingAdapter = new WaitingAdapter(wi);
+
         // 수락 버튼을 클릭했을때
         waitingAdapter.setOnWaitingAcceptClickListener(new WaitingAdapter.OnWaitingAcceptClickListener() {
             @Override
@@ -48,6 +58,7 @@ public class WaitingDialog extends Dialog {
                 System.out.println("수락한 아이템 위치 : " + position);
                 System.out.println("수락한 유저의 고유 아이디 : " + userSeq);
                 System.out.println("수락한 미팅의 고유 아이디 : " + meetingSeq);
+                // 대상 유저의 고유 아이다 userSeq
                 acceptWaiting(meetingSeq, userSeq); // 수락시 인터넷 통신
             }
         });
@@ -65,10 +76,13 @@ public class WaitingDialog extends Dialog {
         waitRecyclerView.setAdapter(waitingAdapter);
     }
 
-    public WaitingDialog(@NonNull Context context, ArrayList<WaitingItem> wi, FragmentActivity activity){
+    // userId 본인 유저의 고유 아이디
+    public WaitingDialog(@NonNull Context context, ArrayList<WaitingItem> wi, FragmentActivity activity, int userId){
         super(context);
         this.wi = wi;
         this.activity = activity;
+        this.userId = userId;
+//        this.cSocket = new clientSocket();
     }
 
     // 대기자를 수락했을때 실행되는 메소드
@@ -90,7 +104,6 @@ public class WaitingDialog extends Dialog {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
             }
-
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if(response.isSuccessful()){
@@ -99,6 +112,13 @@ public class WaitingDialog extends Dialog {
                         @Override
                         public void run() {
                             getUserWaitingList(meetingSeq);
+                            // 서비스 시작
+                            Intent serviceIntent = new Intent(getContext(), socketService.class);
+                            serviceIntent.putExtra("userId", userSeq);
+                            serviceIntent.putExtra("action", "accept");
+                            serviceIntent.putExtra("meetingId", meetingSeq);
+                            getContext().startService(serviceIntent);
+//                            cSocket.waitingClientSocket(userId, userSeq, "수락");
                         }
                     });
                 }
@@ -108,6 +128,7 @@ public class WaitingDialog extends Dialog {
 
     // 대기자를 거절했을때 실행되는 메소드
     private void refuseWaiting(int meetingSeq, int userSeq){
+
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/waiting/refuseWaiting.php").newBuilder();
         urlBuilder.addQueryParameter("userId", String.valueOf(userSeq)); // url 쿼리에 id 라는 메개변수 추가
         urlBuilder.addQueryParameter("meetingId", String.valueOf(meetingSeq)); // url 쿼리에 id 라는 메개변수 추가
@@ -125,7 +146,6 @@ public class WaitingDialog extends Dialog {
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
             }
-
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if(response.isSuccessful()){
@@ -134,6 +154,12 @@ public class WaitingDialog extends Dialog {
                         @Override
                         public void run() {
                             getUserWaitingList(meetingSeq);
+                            // 서비스 시작
+                            Intent serviceIntent = new Intent(getContext(), socketService.class);
+                            serviceIntent.putExtra("userId", userSeq);
+                            serviceIntent.putExtra("action", "refuse");
+                            getContext().startService(serviceIntent);
+//                            cSocket.waitingClientSocket(userId, userSeq, "거절");
                         }
                     });
                 }

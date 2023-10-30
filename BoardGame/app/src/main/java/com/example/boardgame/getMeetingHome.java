@@ -33,6 +33,8 @@ import com.example.boardgame.item.UserItem;
 import com.example.boardgame.item.UserNItem;
 import com.example.boardgame.item.WaitingItem;
 import com.example.boardgame.network.meeting.NetSchedule;
+import com.example.boardgame.service.socketService;
+import com.example.boardgame.socket.clientSocket;
 import com.example.boardgame.utility.FragToActData;
 import com.example.boardgame.utility.JsonToData;
 import com.example.boardgame.utility.OnItemClickListener;
@@ -76,11 +78,13 @@ public class getMeetingHome extends Fragment {
     ArrayList<ScheduleMemberItem> smt = new ArrayList<>();
     meetingVO vo = new meetingVO();
     int id; // 미팅의 고유 아이디
+    int sk; // 유저 대기줄 다이얼로그를 보여줄지 말지 하는 변수
     ArrayList<UserItem> data;
     ArrayList<WaitingItem> waitingItem;
     private LifecycleOwner lifecycleOwner = this;
     private FragToActData fragToActData;
     NetSchedule NetSchedule = new NetSchedule();
+    int LeaderSeq; // 미팅 방장의 고유 아이디
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -108,6 +112,7 @@ public class getMeetingHome extends Fragment {
         Bundle bundle = getArguments();
         if(bundle != null){
             id = bundle.getInt("id", 0);
+            sk = bundle.getInt("sk", 0);
         }
 
         // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
@@ -115,7 +120,7 @@ public class getMeetingHome extends Fragment {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("UserData", Context.MODE_PRIVATE);
         // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
         int userId = Integer.parseInt(sharedPreferences.getString("userId", ""));
-        getUserWaitingList(id);
+        getUserWaitingList(id, userId);
         button4.setOnClickListener(new View.OnClickListener() { // 모임 가입 버튼
             @Override
             public void onClick(View v) {
@@ -128,12 +133,8 @@ public class getMeetingHome extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // 유저가 모임에 가입함
-//                        intoMeeting(userId, id);
-//                        button4.setVisibility(View.GONE);
-//                        waitButton.setVisibility(View.VISIBLE);
                         System.out.println("버튼을 클릭합니다.");
-                        intoWait(userId, id);
-
+                        intoWait(userId, id, LeaderSeq);
                     }
                 });
                 alertDialogBuilder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
@@ -255,7 +256,9 @@ public class getMeetingHome extends Fragment {
         waitMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity());
+                System.out.println("모임의 방징 고유 아이디 : " + LeaderSeq);
+                System.out.println("로그인 유저의 고유 아이디 : " + userId);
+                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity(), userId);
                 waitingDialog.show();
             }
         });
@@ -295,7 +298,7 @@ public class getMeetingHome extends Fragment {
         return view;
     }
     // 해당 모임의 가입 신청 리스트를 가져오는 메소드
-    private void getUserWaitingList(int id){
+    private void getUserWaitingList(int id, int userId){
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/waiting/getWaitingUserList.php").newBuilder();
         urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가 모임 고유 아이디
         String url = urlBuilder.build().toString();
@@ -321,6 +324,10 @@ public class getMeetingHome extends Fragment {
                         @Override
                         public void run() {
                             waitingItem = js.jsonToWaitingUserList(responseData);
+                            if(sk == 1){
+                                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity(), userId);
+                                waitingDialog.show();
+                            }
                         }
                     });
                 }
@@ -382,7 +389,7 @@ public class getMeetingHome extends Fragment {
     } // end getWaitList
 
     // 모임 신청 대기줄에 정보 입력하는 메소드
-    private void intoWait(int userId, int id){
+    private void intoWait(int userId, int id, int LeaderSeq){
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/waiting/intoWaiting.php").newBuilder();
         urlBuilder.addQueryParameter("userId", String.valueOf(userId)); // 유저의 고유 아이디
         urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가 모임 고유 아이디
@@ -409,6 +416,12 @@ public class getMeetingHome extends Fragment {
                         @Override
                         public void run() {
                             getWaitList(userId, id);
+                            Intent serviceIntent = new Intent(getContext(), socketService.class);
+                            serviceIntent.putExtra("userId", LeaderSeq);
+                            serviceIntent.putExtra("action", "join");
+                            serviceIntent.putExtra("meetingId", id);
+                            getContext().startService(serviceIntent);
+//                            cSocket.waitingClientSocket(userId, LeaderSeq, "신청");
                         }
                     });
                 }
@@ -690,6 +703,7 @@ public class getMeetingHome extends Fragment {
                             // 모임 인원 리스트중에서 모임장의 유저 고유 아이디를 찾기위한 방복문
                             for (int i = 0; i < data.size(); i++) {
                                 if(data.get(i).getLeader() == 1){
+                                    LeaderSeq = data.get(i).getUserSeq();
                                     fragToActData.onDataPass(data.get(i).getUserSeq(), data.size());
                                     break;
                                 }

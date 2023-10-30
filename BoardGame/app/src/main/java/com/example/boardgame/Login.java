@@ -1,15 +1,25 @@
 package com.example.boardgame;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.boardgame.service.TestService;
+import com.example.boardgame.service.socketService;
+import com.example.boardgame.utility.NotificationChannelManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,17 +44,14 @@ import okhttp3.Response;
 * */
 
 public class Login extends AppCompatActivity {
-
     private Button join; // 회원가입 버튼
     private Button login; // 로그인 버튼
     private Button findId; // 아이디 찾기 버튼
     private Button findPassword; // 비밀번호 찾기 버튼
     private EditText inputEmail; // 이메일 입력
     private EditText inputPassword; // 비밀번호 입력
-
     String email; // 로그인 할때의 이메일을 저장하는 변수
     String pass; // 로그인 할때의 비밀번호를 저장하는 변수
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +70,23 @@ public class Login extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
         // 쉐어드 프리퍼런스에서 token 이라는 키값을 가진 벨류값을 가져옴
         String saveToken = sharedPreferences.getString("token", "");
+        String userIdString = sharedPreferences.getString("userId", null);
+
+        int userId = -1; // Default value in case parsing fails
+
+        if (userIdString != null && !userIdString.isEmpty()) {
+            try {
+                userId = Integer.parseInt(userIdString);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        // 서비스 시작
+        Intent serviceIntent = new Intent(this, socketService.class);
+        serviceIntent.putExtra("user_id", userId);
+        startService(serviceIntent);
 
         // 토큰 검사 및 자동 로그인 처리
         // saveToken에 값이 저장되어있는지 확인
@@ -76,7 +100,6 @@ public class Login extends AppCompatActivity {
                 finish(); // 생명주기를 끝냄
             }
         }
-
 
         // 회원가입 버튼을 눌렀을때 약관 페이지로 이동
         join.setOnClickListener(new View.OnClickListener() {
@@ -144,9 +167,7 @@ public class Login extends AppCompatActivity {
     }
 
     private class LoginNetworkTask extends AsyncTask<Void, Void, String> {
-
         String serverUrl = "http://3.38.213.196/userJoin/login.php";
-
         @Override
         protected String doInBackground(Void... voids) {
             OkHttpClient client = new OkHttpClient();
@@ -214,5 +235,18 @@ public class Login extends AppCompatActivity {
     // 토스트 메시지 출력 함수
     private void showToastMessage(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void checkNotificationPermission(Context context){
+        // Check for notification permission
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            String[] permissions = {Manifest.permission.POST_NOTIFICATIONS};
+            if(ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(Login.this, permissions, 0);
+            } else {
+                // 노티피케이션 채널 매니저를 초기화 하고 싱글톤 인스턴스를 생성합니다.
+                NotificationChannelManager.getInstance(this);
+            }
+        }
     }
 }
