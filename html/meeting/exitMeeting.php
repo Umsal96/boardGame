@@ -22,5 +22,12 @@
 
     $stmt->execute();
 
+    $stmt1 = $conn->prepare("UPDATE meeting_table 
+    SET meeting_current = meeting_current - 1
+    WHERE meeting_seq = :meeting_seq");
+
+    $stmt1->bindParam(':meeting_seq', $meetingId, PDO::PARAM_INT);
+    $stmt1->execute();
+
     echo "삭제 성공"
 ?>
