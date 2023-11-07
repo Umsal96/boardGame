@@ -28,6 +28,15 @@
         android:theme="@style/Theme.BoardGame"
         tools:targetApi="31">
         <activity
+            android:name=".getMeetingBoardModify"
+            android:exported="false" />
+        <activity
+            android:name=".getMeetingReply"
+            android:exported="false" />
+        <activity
+            android:name=".getMeetingBoard"
+            android:exported="false" />
+        <activity
             android:name=".inputMeetingBoard"
             android:exported="false" />
         <activity

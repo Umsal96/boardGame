@@ -2,6 +2,8 @@ package com.example.boardgame.utility;
 
 import android.util.Pair;
 
+import com.example.boardgame.item.CommentReplyItem;
+import com.example.boardgame.item.MeetingBoardItem;
 import com.example.boardgame.item.MeetingItem;
 import com.example.boardgame.item.ScheduleItem;
 import com.example.boardgame.item.ScheduleMemberItem;
@@ -24,6 +26,67 @@ import java.util.Locale;
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
+
+    // 게시글의 댓글 리스트를 가져옴
+    public ArrayList<CommentReplyItem> jsonToBoardComment(String json){
+        ArrayList<CommentReplyItem> cri = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                CommentReplyItem ci = new CommentReplyItem();
+
+                ci.setReply_seq(Integer.parseInt(jsonObject.getString("reply_seq")));
+                ci.setBoard_seq(Integer.parseInt(jsonObject.getString("board_seq")));
+                ci.setUser_seq(Integer.parseInt(jsonObject.getString("user_seq")));
+                ci.setUser_nick(jsonObject.getString("user_nickname"));
+                ci.setUser_url(jsonObject.getString("user_url"));
+                ci.setReply_content(jsonObject.getString("reply_content"));
+                ci.setReply_ref(Integer.parseInt(jsonObject.getString("reply_ref")));
+                ci.setReply_order(Integer.parseInt(jsonObject.getString("reply_order")));
+                ci.setReply_del(Integer.parseInt(jsonObject.getString("reply_del")));
+                ci.setReply_create_date(jsonObject.getString("reply_create_date"));
+
+                cri.add(ci);
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return cri;
+    }
+
+    // 모임의 게시글 리스트를 가져오는 코드
+    public ArrayList<MeetingBoardItem> jsonToMeetingBoard(String json){
+        ArrayList<MeetingBoardItem> mbi = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                MeetingBoardItem mi = new MeetingBoardItem();
+
+                mi.setUserId(Integer.parseInt(jsonObject.getString("user_seq")));
+                mi.setMeetingId(Integer.parseInt(jsonObject.getString("meeting_seq")));
+                mi.setBoardId(Integer.parseInt(jsonObject.getString("board_seq")));
+                mi.setBoardTitle(jsonObject.getString("board_title"));
+                mi.setBoardContent(jsonObject.getString("board_content"));
+                mi.setBoardType(jsonObject.getString("board_type"));
+                mi.setCreateDate(jsonObject.getString("board_create_date"));
+                mi.setUserNick(jsonObject.getString("user_nickname"));
+                mi.setUserUrl(jsonObject.getString("user_url"));
+                mi.setImgUrl(jsonObject.getString("image_url"));
+
+                mbi.add(mi);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return mbi;
+    }
 
     public ArrayList<WaitingItem> jsonToWaitingUserList(String json){
         ArrayList<WaitingItem> wai = new ArrayList<>();
@@ -53,7 +116,7 @@ public class JsonToData {
             // JSON 문자열을 JSONObject 로 파싱
             JSONObject jsonObject = new JSONObject(json);
 
-            // JSON 데이터에서 필요한 정보를 추출하여 meetingVO 객체에 설정
+            // JSON 데이터에서 필요한 정보를 추출하여 ScheduleItem 객체에 설정
             ScheduleItem scheduleItem = new ScheduleItem();
             scheduleItem.setScheduleSeq(Integer.parseInt(jsonObject.getString("schedule_seq")));
             scheduleItem.setUserSeq(Integer.parseInt(jsonObject.getString("user_seq")));

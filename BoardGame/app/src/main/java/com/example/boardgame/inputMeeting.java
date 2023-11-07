@@ -76,7 +76,6 @@ public class inputMeeting extends AppCompatActivity {
     String roadAddressName;
     String x;
     String y;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

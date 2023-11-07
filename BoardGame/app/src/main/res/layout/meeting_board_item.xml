@@ -9,64 +9,97 @@
     android:background="@drawable/border">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/userUrl"
+        android:id="@+id/userImg"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
         android:src="@drawable/img2"
-        ></de.hdodenhof.circleimageview.CircleImageView>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></de.hdodenhof.circleimageview.CircleImageView>
 
     <TextView
-        android:id="@+id/textView30"
+        android:id="@+id/userNick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="15dp"
         android:text="닉네임"
-        tools:layout_editor_absoluteX="52dp"
-        tools:layout_editor_absoluteY="11dp" />
+        app:layout_constraintStart_toEndOf="@+id/userImg"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView31"
+        android:id="@+id/boardTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="6dp"
         android:text="시간"
-        tools:layout_editor_absoluteX="284dp"
-        tools:layout_editor_absoluteY="11dp" />
+        app:layout_constraintEnd_toStartOf="@+id/moreMenu"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/more_horiz_24px"
-        tools:layout_editor_absoluteX="351dp" />
+        android:id="@+id/moreMenu"
+        android:layout_width="42dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="14dp"
+        android:background="#00000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/more_horiz_24px" />
 
     <TextView
-        android:id="@+id/textView32"
+        android:id="@+id/boardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
         android:text="제목"
-        tools:layout_editor_absoluteX="51dp"
-        tools:layout_editor_absoluteY="40dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userImg" />
 
     <TextView
-        android:id="@+id/textView33"
+        android:id="@+id/boardContent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
         android:text="내용"
-        tools:layout_editor_absoluteX="55dp"
-        tools:layout_editor_absoluteY="65dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/boardTitle" />
 
     <View
+        android:id="@+id/view"
         android:layout_width="wrap_content"
-        android:layout_height="0.3dp"
+        android:layout_height="1dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="12dp"
         android:background="#4682B4"
-        tools:layout_editor_absoluteX="4dp"
-        tools:layout_editor_absoluteY="98dp" />
+        app:layout_constraintBottom_toTopOf="@+id/boardType"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView34"
+        android:id="@+id/boardType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="88dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="8dp"
         android:text="글 중류"
-        tools:layout_editor_absoluteX="345dp"
-        tools:layout_editor_absoluteY="110dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/moreMenu"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="58dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/moreMenu"
+        tools:srcCompat="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>
