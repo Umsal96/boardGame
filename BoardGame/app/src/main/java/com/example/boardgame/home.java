@@ -44,11 +44,8 @@ public class home extends Fragment {
     ArrayList<MeetingItem> mt = new ArrayList<>(); // meetingItem 객체의 어레이리스트 생성
     int page = 1, limit = 10;
     int num = 0;
-
     private ProgressBar progress_bar;
-
     private boolean isLoading = false;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

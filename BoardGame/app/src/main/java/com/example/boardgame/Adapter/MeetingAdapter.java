@@ -31,8 +31,6 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.ViewHold
 
         private TextView meetingName, meetingContent, meetingMember, meetingMaxMember; // 텍스트뷰 미팅 이름 미팅 내용 미팅의 인원수
         private ImageView meetingImg; // 모임의 이미지
-
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             meetingName = itemView.findViewById(R.id.meetingName); // 모임 이름
@@ -42,7 +40,6 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.ViewHold
             meetingImg = itemView.findViewById(R.id.meetingImg); // 모임의 이미지 뷰
         }
     }
-
     public MeetingAdapter(ArrayList<MeetingItem> DataSet){
         this.meetingItems = DataSet;
     }

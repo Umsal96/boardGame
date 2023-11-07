@@ -220,6 +220,7 @@ public class socketService extends Service {
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("알람")
                 .setContentText(message)
+                .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(resultPendingIntent);
 

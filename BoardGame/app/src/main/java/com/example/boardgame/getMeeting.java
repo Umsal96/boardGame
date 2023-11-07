@@ -35,7 +35,7 @@ import okhttp3.Response;
 public class getMeeting extends AppCompatActivity implements FragToActData {
 
     getMeetingHome getMeetingHome; // 변수 생성 getMeeting 페이지의 홈 페이지
-    getMeetingBoard getMeetingBoard; // 변수 생성 getMeeting 페이지의 게시글 페이지
+    getMeetingBoardList getMeetingBoardList; // 변수 생성 getMeeting 페이지의 게시글 페이지
     getMeetingCheat getMeetingCheat; // 변수 생성 getMeeting 페이지 채팅 페이지
     private ImageButton backPage;
     private ImageButton moreMenu;
@@ -44,6 +44,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
     private int LeaderUserId; // 현재 접속한 모임의 방장 고유 Id
     private int UserId; // 현재 로그인한 유저의 고유 Id
     private int size; // 현재 모임의 인원수
+    private int id; // 모임 고유 아이디
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,8 +56,10 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
 
         Intent intent = getIntent(); // 외부에서 받아온 인텐트를 변수에 할당
         int chPage = intent.getIntExtra("where", 0);
-        int id = intent.getIntExtra("id", 0); // 미팅의 고유 아이디를 가져옴
+        id = intent.getIntExtra("id", 0); // 미팅의 고유 아이디를 가져옴
         int sk = intent.getIntExtra("sk", 0); // 유저 다이얼로그 보여줄지 말지 1 이면 보여줌 0이면 안보여줌
+
+        System.out.println("intent 로 넘어온 id : " + id);
 
         // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
         // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
@@ -68,11 +71,16 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         Bundle bundle = new Bundle();
         bundle.putInt("id", id); // 모임의 고유 아이디
         bundle.putInt("sk", sk); // 유저 다이얼로그 보여줄지 말지 1 이면 보여줌 0이면 안보여줌
+//        bundle.putInt("leaderId", LeaderUserId); // 해당 모임의 모임장의 유저 고유 아이디
 
+//        System.out.println("모임장 고유 아이디 : " + LeaderUserId);
         // 페이지 연결
         getMeetingHome = new getMeetingHome();
         getMeetingHome.setArguments(bundle);
-        getMeetingBoard = new getMeetingBoard();
+
+        getMeetingBoardList = new getMeetingBoardList();
+        getMeetingBoardList.setArguments(bundle);
+
         getMeetingCheat = new getMeetingCheat();
 
         getMeetingName(id);
@@ -84,7 +92,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         }
 
         if(chPage != 0 && chPage == 2){ // 인텐트에 들어있던 where 의 value를 확인해서 만약 0이 아니고 2이면 getMeetingBoard를 프레그먼트에 표시
-            getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoard).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoardList).commit();
             MainNavigationBarView.setSelectedItemId(R.id.board);
         }
 
@@ -168,7 +176,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
                         getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingHome).commit();
                         return true;
                     case R.id.board:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoard).commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoardList).commit();
                         return true;
                     case R.id.cheat:
                         getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingCheat).commit();
@@ -398,10 +406,15 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
             }
         });
     }
-
     @Override
     public void onDataPass(int LeaderUserId, int size) {
         this.LeaderUserId = LeaderUserId;
         this.size = size;
+        System.out.println("onDataPass : " + id);
+        Bundle bundle = new Bundle();
+        bundle.putInt("LeaderUserId", LeaderUserId);
+        bundle.putInt("id", id); // 모임의 고유 아이디
+        getMeetingBoardList.setArguments(bundle);
+//        System.out.println("onDataPass 실행");
     }
 }
