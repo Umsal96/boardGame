@@ -20,7 +20,7 @@
     $stmt = $conn->prepare("INSERT INTO board_reply (board_seq, user_seq, 
         reply_content, reply_order, reply_create_date)
         VALUES (:board_seq, :user_seq, :reply_content, :reply_order
-        , DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))");
+        , NOW())");
 
     // 메개변수 바인딩
     $stmt->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
@@ -36,7 +36,7 @@
 
     // reply_ref에 reply_seq 값을 업데이트합니다.
     $stmt1 = $conn->prepare("UPDATE board_reply SET reply_ref = :reply_seq WHERE reply_seq = :reply_seq");
-    $stmt1->bindParam(':reply_seq', $reply_seq);
+    $stmt1->bindParam(':reply_seq', $reply_seq, PDO::PARAM_INT);
     $stmt1->execute();
 
     echo '입력 성공';

@@ -13,12 +13,14 @@
     $board_seq = $_GET['boardId'];
 
     $stmt = $conn->prepare("SELECT meeting_board.*, user_info.user_url, user_info.user_nickname,
-        GROUP_CONCAT(image_table.image_url) AS image_urls
-        FROM meeting_board
-        JOIN user_info ON meeting_board.user_seq = user_info.user_seq
-        LEFT JOIN image_table ON meeting_board.board_seq = image_table.board_seq
-        WHERE meeting_board.board_seq = :board_seq
-        ORDER BY image_table.image_order");
+    GROUP_CONCAT(image_to_table.image_seq) AS to_seqs, 
+    GROUP_CONCAT(image_table.image_url) AS image_urls
+    FROM meeting_board
+    JOIN user_info ON meeting_board.user_seq = user_info.user_seq
+    LEFT JOIN image_to_table ON meeting_board.board_seq = image_to_table.board_seq
+    LEFT JOIN image_table ON image_to_table.image_seq = image_table.image_seq
+    WHERE meeting_board.board_seq = :board_seq
+    ORDER BY image_table.image_order");
 
     // 쿼리에 바인딩
     $stmt->bindParam(':board_seq', $board_seq, PDO::PARAM_INT);
@@ -38,7 +40,7 @@
     $user_url = $result['user_url'];
     $user_nickname = $result['user_nickname'];
     $image_urls  = $result['image_urls'];
-
+    $to_seqs = $result['to_seqs'];
     $data = [
         'board_seq' => $board_seq, 
         'user_seq' => $user_seq, 
@@ -49,7 +51,8 @@
         'board_create_date' => $board_create_date,
         'user_url' => $user_url, 
         'user_nickname' => $user_nickname, 
-        'image_urls' => $image_urls
+        'image_urls' => $image_urls,
+        'to_seqs' => $to_seqs
     ];
 
     echo json_encode($data);

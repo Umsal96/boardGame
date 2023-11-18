@@ -1,4 +1,4 @@
-<?php 
+<?php
 
     // 가입한 유저의 정보를 가져옴
     error_reporting(E_ALL);
@@ -10,30 +10,29 @@
     // 모둘화된 db 연결을 가져옴
     $conn = connectToDatabase();
 
-    // post 로 전송된 데이터를 변수에 담음
-    $userId = $_POST['userId'];
-    $meetingId = $_POST['meetingId'];
-    $boardTitle = $_POST['boardTitle'];
-    $boardContent = $_POST['boardContent'];
-    $boardType = $_POST['boardType'];
+    // post로 전송횐 데이터를 변수에 담음
+    $gameName = $_POST['gameName'];
+    $gameSummary = $_POST['gameSummary'];
+
+    $gameMin = $_POST['gameMax'];
+    $gameMax = $_POST['gameMin'];
+    $gameDetail = $_POST['gameDetail'];
 
     // 쿼리 작성
-    $stmt = $conn->prepare("INSERT INTO meeting_board (user_seq, meeting_seq,
-        board_title, board_content, board_type, board_create_date)
-        VALUES (:user_seq, :meeting_seq,
-        :board_title, :board_content, :board_type, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'))");
+    $stmt = $conn->prepare("INSERT INTO game_table (game_name, game_summary, game_min,
+        game_max, game_detail, game_create_data)
+        VALUES (:game_name, :game_summary, :game_min, :game_max,
+        :game_detail, NOW())");
 
-    // 메개변수 바인딩
-    $stmt->bindParam(':user_seq', $userId, PDO::PARAM_INT);
-    $stmt->bindParam(':meeting_seq', $meetingId, PDO::PARAM_INT);
-    $stmt->bindParam(':board_title', $boardTitle, PDO::PARAM_STR);
-    $stmt->bindParam(':board_content', $boardContent, PDO::PARAM_STR);
-    $stmt->bindParam(':board_type', $boardType, PDO::PARAM_STR);
-    
-    // 쿼리 실행
+    $stmt->bindParam(':game_name', $gameName, PDO::PARAM_STR);
+    $stmt->bindParam(':game_summary', $gameSummary, PDO::PARAM_STR);
+    $stmt->bindParam(':game_min', $gameMin, PDO::PARAM_INT);
+    $stmt->bindParam(':game_max', $gameMax, PDO::PARAM_INT);
+    $stmt->bindParam(':game_detail', $gameDetail, PDO::PARAM_STR);
+
     $stmt->execute();
 
-    $lastMeetingSeq = $conn->lastInsertId();
+    $lastGameSeq = $conn->lastInsertId();
 
     // 이미지가 존재하는지 확인
     if(isset($_FILES)) {
@@ -63,7 +62,6 @@
                 move_uploaded_file($file['tmp_name'], $uploadFile);
 
                 // 이미지를 데이터 베이스에 저장
-                $imagePlace = 1;  // 장소 데이터 저장
                 $stmt1 = $conn->prepare("INSERT INTO image_table (image_url, 
                 image_create, image_order) VALUES (:image_url, NOW(), :image_order)");
 
@@ -82,12 +80,12 @@
 
                 $lastImgSeq = $conn->lastInsertId();
 
-                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, board_seq, to_create_date)
-                VALUES (:image_seq, :board_seq, NOW())");
+                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, game_seq, to_create_date)
+                VALUES (:image_seq, :game_seq, NOW())");
 
                 // 메게변수 바인딩
                 $stmt2->bindParam(':image_seq', $lastImgSeq, PDO::PARAM_INT);
-                $stmt2->bindParam(':board_seq', $lastMeetingSeq, PDO::PARAM_INT);
+                $stmt2->bindParam(':game_seq', $lastGameSeq, PDO::PARAM_INT);
 
                 $stmt2->execute();
             }
@@ -98,5 +96,4 @@
 
     echo '저장 완료';
     
-
 ?>

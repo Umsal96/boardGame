@@ -68,14 +68,12 @@
 
                 // 이미지를 데이터 베이스에 저장
                 $imagePlace = 1;  // 장소 데이터 저장
-                $stmt1 = $conn->prepare("INSERT INTO image_table (image_url, image_place, board_seq,
-                image_create, image_order) VALUES (:image_url, :image_place, 
-                :board_seq, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'), :image_order)");
+                $stmt1 = $conn->prepare("INSERT INTO image_table (image_url,
+                image_create, image_order) VALUES (:image_url, 
+                NOW(), :image_order)");
 
                 // 메게변수 바인딩
                 $stmt1->bindParam(':image_url', $uploadDBDir, PDO::PARAM_STR);
-                $stmt1->bindParam(':image_place', $imagePlace, PDO::PARAM_INT);
-                $stmt1->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
                 $stmt1->bindParam(':image_order', $imageOrder, PDO::PARAM_INT);
 
                 $result1 = $stmt1->execute();
@@ -86,6 +84,17 @@
 
                 // Increment the image order for the next image
                 $imageOrder++;
+
+                $lastImgSeq = $conn->lastInsertId();
+
+                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, board_seq, to_create_date)
+                VALUES (:image_seq, :board_seq, NOW())");
+
+                // 메게변수 바인딩
+                $stmt2->bindParam(':image_seq', $lastImgSeq, PDO::PARAM_INT);
+                $stmt2->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
+
+                $stmt2->execute();
             }
         }
     }else {

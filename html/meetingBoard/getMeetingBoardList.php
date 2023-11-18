@@ -14,17 +14,31 @@
 
     if($type == '전체'){
         $sql = "SELECT meeting_board.*, user_info.user_url, user_info.user_nickname,
-            (SELECT image_url FROM image_table WHERE image_table.board_seq = meeting_board.board_seq LIMIT 1) AS image_url
-            FROM meeting_board
-            JOIN user_info ON meeting_board.user_seq = user_info.user_seq
-            ORDER BY meeting_board.board_seq DESC";
+        (SELECT image_seq FROM image_to_table WHERE image_to_table.board_seq = meeting_board.board_seq LIMIT 1) AS image_seq,
+            (SELECT image_url FROM image_table WHERE image_table.image_seq = (
+                SELECT image_seq 
+                FROM image_to_table 
+                WHERE image_to_table.board_seq = meeting_board.board_seq 
+                LIMIT 1
+            )
+        ) AS image_url
+        FROM meeting_board
+        JOIN user_info ON meeting_board.user_seq = user_info.user_seq
+        ORDER BY meeting_board.board_seq DESC";
     }else{
         $sql = "SELECT meeting_board.*, user_info.user_url, user_info.user_nickname,
-            (SELECT image_url FROM image_table WHERE image_table.board_seq = meeting_board.board_seq LIMIT 1) AS image_url
-            FROM meeting_board
-            JOIN user_info ON meeting_board.user_seq = user_info.user_seq
-            WHERE meeting_board.board_type = :category
-            ORDER BY meeting_board.board_seq DESC";
+        (SELECT image_seq FROM image_to_table WHERE image_to_table.board_seq = meeting_board.board_seq LIMIT 1) AS image_seq,
+            (SELECT image_url FROM image_table WHERE image_table.image_seq = (
+                SELECT image_seq 
+                FROM image_to_table 
+                WHERE image_to_table.board_seq = meeting_board.board_seq 
+                LIMIT 1
+            )
+        ) AS image_url
+        FROM meeting_board
+        JOIN user_info ON meeting_board.user_seq = user_info.user_seq
+        WHERE meeting_board.board_type = :category
+        ORDER BY meeting_board.board_seq DESC";
     }
 
     $stmt = $conn->prepare($sql);

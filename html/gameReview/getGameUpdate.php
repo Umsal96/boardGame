@@ -1,8 +1,8 @@
 <?php 
 
-    // 가입한 유저의 정보를 가져옴
-    error_reporting(E_ALL);
-    ini_set('display_errors', '1');
+    // 오류가 발생시 출력됨
+    error_reporting(E_ALL); // 모든 php 오류를 표시하도록 설정합니다.
+    ini_set('display_errors', '1'); // 오류를 화면에 표시하도록 설정합니다.
 
     // 데이터 베이스 연결
     include '../Utility/db_connect.php';
@@ -10,43 +10,44 @@
     // 모둘화된 db 연결을 가져옴
     $conn = connectToDatabase();
 
-    // post 로 전송된 데이터를 변수에 담음
-    $userId = $_POST['userId'];
-    $meetingId = $_POST['meetingId'];
-    $boardTitle = $_POST['boardTitle'];
-    $boardContent = $_POST['boardContent'];
-    $boardType = $_POST['boardType'];
+    $reviewId = $_POST['reviewId'];
+    $reviewContent = $_POST['reviewContent'];
+    $reviewGrade = $_POST['reviewGrade'];
 
-    // 쿼리 작성
-    $stmt = $conn->prepare("INSERT INTO meeting_board (user_seq, meeting_seq,
-        board_title, board_content, board_type, board_create_date)
-        VALUES (:user_seq, :meeting_seq,
-        :board_title, :board_content, :board_type, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'))");
+    if (isset($_POST['imageOrder'])) {
+        $imageOrder = $_POST['imageOrder'];
+        echo 'imageOrder 가 있습니다.';
+        // 이미지 처리 코드
+    } else {
+        $imageOrder = ''; // 이미지 순서가 없는 경우 빈 문자열 또는 다른 기본값 설정
+        // 이미지 없는 경우 처리 코드
+    }
 
-    // 메개변수 바인딩
-    $stmt->bindParam(':user_seq', $userId, PDO::PARAM_INT);
-    $stmt->bindParam(':meeting_seq', $meetingId, PDO::PARAM_INT);
-    $stmt->bindParam(':board_title', $boardTitle, PDO::PARAM_STR);
-    $stmt->bindParam(':board_content', $boardContent, PDO::PARAM_STR);
-    $stmt->bindParam(':board_type', $boardType, PDO::PARAM_STR);
-    
+    $stmt = $conn->prepare("UPDATE review_table
+    SET review_content = :review_content, review_grade = :review_grade,
+    review_modify_date = NOW()
+    WHERE review_seq = :review_seq");
+
+    $stmt->bindParam(':review_content', $reviewContent, PDO::PARAM_STR);
+    $stmt->bindParam(':review_grade', $reviewGrade, PDO::PARAM_INT);
+    $stmt->bindParam(':review_seq', $reviewId, PDO::PARAM_INT);
+
     // 쿼리 실행
-    $stmt->execute();
-
-    $lastMeetingSeq = $conn->lastInsertId();
+    if($stmt->execute()){
+        echo '수정 성공';
+    } else{
+        echo '수정 실패';
+    }
 
     // 이미지가 존재하는지 확인
-    if(isset($_FILES)) {
+    if(!empty($_FILES)) {
         echo '이미지가 존재합니다.';
-
+        $imageOrder = $imageOrder + 1;
         $numImages = count($_FILES);
         echo '전송된 이미지의 개수: ' . $numImages;
 
         // 서버의 파일 경로 지정
         $uploadDir = '/var/www/html/uploads/';
-
-        // 이미지의 순서 설정
-        $imageOrder = 1;
 
         // 순회하면서 각 이미지를 처리
         foreach ($_FILES as $key => $file) {
@@ -64,8 +65,9 @@
 
                 // 이미지를 데이터 베이스에 저장
                 $imagePlace = 1;  // 장소 데이터 저장
-                $stmt1 = $conn->prepare("INSERT INTO image_table (image_url, 
-                image_create, image_order) VALUES (:image_url, NOW(), :image_order)");
+                $stmt1 = $conn->prepare("INSERT INTO image_table (image_url,
+                image_create, image_order) VALUES (:image_url, 
+                NOW(), :image_order)");
 
                 // 메게변수 바인딩
                 $stmt1->bindParam(':image_url', $uploadDBDir, PDO::PARAM_STR);
@@ -82,21 +84,19 @@
 
                 $lastImgSeq = $conn->lastInsertId();
 
-                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, board_seq, to_create_date)
-                VALUES (:image_seq, :board_seq, NOW())");
+                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, review_seq, to_create_date)
+                VALUES (:image_seq, :review_seq, NOW())");
 
                 // 메게변수 바인딩
                 $stmt2->bindParam(':image_seq', $lastImgSeq, PDO::PARAM_INT);
-                $stmt2->bindParam(':board_seq', $lastMeetingSeq, PDO::PARAM_INT);
+                $stmt2->bindParam(':review_seq', $reviewId, PDO::PARAM_INT);
 
                 $stmt2->execute();
             }
         }
     }else {
-        echo '이미지가 존재하지 않습니다. ';
+            echo '이미지가 존재하지 않습니다. ';
     }
 
     echo '저장 완료';
-    
-
 ?>

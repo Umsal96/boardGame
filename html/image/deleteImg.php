@@ -10,14 +10,12 @@
     // 모둘화된 db 연결을 가져옴
     $conn = connectToDatabase();
 
-    $boardId = $_GET['boardId'];
-    $order = $_GET['imageOrder'];
+    $imageId = $_GET['imageId'];
 
     $stmt = $conn->prepare("SELECT image_url FROM image_table 
-        WHERE board_seq = :board_seq AND image_order = :image_order");
+        WHERE image_seq = :image_seq");
     
-    $stmt->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
-    $stmt->bindParam(':image_order', $order, PDO::PARAM_INT);
+    $stmt->bindParam(':image_seq', $imageId, PDO::PARAM_INT);
     $stmt->execute();
 
     $previousImage = $stmt->fetchColumn();
@@ -31,11 +29,16 @@
             echo '파일 삭제 성공';
 
             $stmt1 = $conn->prepare("DELETE FROM image_table 
-            WHERE board_seq = :board_seq AND image_order = :image_order ");
+                WHERE image_seq = :image_seq ");
 
-            $stmt1->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
-            $stmt1->bindParam(':image_order', $order, PDO::PARAM_INT);
+            $stmt1->bindParam(':image_seq', $imageId, PDO::PARAM_INT);
             $stmt1->execute();
+
+            $stmt2 = $conn->prepare("DELETE FROM image_to_table
+                WHERE image_seq = :image_seq");
+            
+            $stmt2->bindParam(':image_seq', $imageId, PDO::PARAM_INT);
+            $stmt2->execute();
 
             echo 'db 삭제 성공';
 
