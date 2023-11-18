@@ -10,30 +10,28 @@
     // 모둘화된 db 연결을 가져옴
     $conn = connectToDatabase();
 
-    // post 로 전송된 데이터를 변수에 담음
     $userId = $_POST['userId'];
-    $meetingId = $_POST['meetingId'];
-    $boardTitle = $_POST['boardTitle'];
-    $boardContent = $_POST['boardContent'];
-    $boardType = $_POST['boardType'];
+    $gameId = $_POST['gameId'];
+    $reviewContent = $_POST['reviewContent'];
+    $reviewGrade = $_POST['reviewGrade'];
+    $reviewType = 0; // 0 이면 게임 리뷰 1 이면 카페 리뷰
 
-    // 쿼리 작성
-    $stmt = $conn->prepare("INSERT INTO meeting_board (user_seq, meeting_seq,
-        board_title, board_content, board_type, board_create_date)
-        VALUES (:user_seq, :meeting_seq,
-        :board_title, :board_content, :board_type, DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i'))");
+    $stmt = $conn->prepare("INSERT INTO review_table (user_seq, game_seq,
+        review_grade, review_content, review_type, review_create_date)
+        VALUES (:user_seq, :game_seq,
+        :review_grade, :review_content, :review_type, NOW())");
 
     // 메개변수 바인딩
     $stmt->bindParam(':user_seq', $userId, PDO::PARAM_INT);
-    $stmt->bindParam(':meeting_seq', $meetingId, PDO::PARAM_INT);
-    $stmt->bindParam(':board_title', $boardTitle, PDO::PARAM_STR);
-    $stmt->bindParam(':board_content', $boardContent, PDO::PARAM_STR);
-    $stmt->bindParam(':board_type', $boardType, PDO::PARAM_STR);
-    
+    $stmt->bindParam(':game_seq', $gameId, PDO::PARAM_INT);
+    $stmt->bindParam(':review_grade', $reviewGrade, PDO::PARAM_INT);
+    $stmt->bindParam(':review_content', $reviewContent, PDO::PARAM_STR);
+    $stmt->bindParam(':review_type', $reviewType, PDO::PARAM_INT);
+
     // 쿼리 실행
     $stmt->execute();
 
-    $lastMeetingSeq = $conn->lastInsertId();
+    $lastReviewSeq = $conn->lastInsertId();
 
     // 이미지가 존재하는지 확인
     if(isset($_FILES)) {
@@ -82,12 +80,12 @@
 
                 $lastImgSeq = $conn->lastInsertId();
 
-                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, board_seq, to_create_date)
-                VALUES (:image_seq, :board_seq, NOW())");
+                $stmt2 = $conn->prepare("INSERT INTO image_to_table(image_seq, review_seq, to_create_date)
+                VALUES (:image_seq, :review_seq, NOW())");
 
                 // 메게변수 바인딩
                 $stmt2->bindParam(':image_seq', $lastImgSeq, PDO::PARAM_INT);
-                $stmt2->bindParam(':board_seq', $lastMeetingSeq, PDO::PARAM_INT);
+                $stmt2->bindParam(':review_seq', $lastReviewSeq, PDO::PARAM_INT);
 
                 $stmt2->execute();
             }
@@ -97,6 +95,5 @@
     }
 
     echo '저장 완료';
-    
 
 ?>

@@ -10,12 +10,12 @@
     // 모듈화된 db 연결
     $conn = connectToDatabase();
 
-    $boardId = $_GET['boardId'];
+    $reviewId = $_GET['reviewId'];
 
     $stmt = $conn->prepare("SELECT image_seq FROM image_to_table 
-    WHERE board_seq = :board_seq");
+    WHERE review_seq = :review_seq");
 
-    $stmt->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
+    $stmt->bindParam(':review_seq', $reviewId, PDO::PARAM_INT);
     $stmt->execute();
 
     $imageSeqs = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -23,6 +23,16 @@
     if (empty($imageSeqs)) {
         // 주어진 boardId에 대한 이미지 시퀀스가 없을 경우 처리
         echo '해당 boardId에 대한 이미지가 없습니다';
+
+        // 게시글 삭제
+        $stmtDeleteBoard = $conn->prepare("DELETE FROM review_table WHERE review_seq = :review_seq");
+        $stmtDeleteBoard->bindParam(':review_seq', $reviewId, PDO::PARAM_INT);
+        if ($stmtDeleteBoard->execute()) {
+            echo '게시글 삭제 성공';
+        } else {
+            echo '게시글 삭제 실패';
+        }
+
         exit;
     }
 
@@ -64,14 +74,15 @@
             }
         }
     }
-    
+
     // 게시글 삭제
-    $stmtDeleteBoard = $conn->prepare("DELETE FROM meeting_board WHERE board_seq = :board_seq");
-    $stmtDeleteBoard->bindParam(':board_seq', $boardId, PDO::PARAM_INT);
+    $stmtDeleteBoard = $conn->prepare("DELETE FROM review_table WHERE review_seq = :review_seq");
+    $stmtDeleteBoard->bindParam(':review_seq', $reviewId, PDO::PARAM_INT);
     if ($stmtDeleteBoard->execute()) {
         echo '게시글 삭제 성공';
     } else {
         echo '게시글 삭제 실패';
     }
+    
 
 ?>
