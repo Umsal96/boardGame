@@ -1,23 +1,22 @@
 package com.example.boardgame.item;
 
 public class ImageItem {
+    private String image_url;
+    private int image_seq;
 
-    String imgUrl;
-    String imgOrder;
-
-    public String getImgUrl() {
-        return imgUrl;
+    public String getImage_url() {
+        return image_url;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
     }
 
-    public String getImgOrder() {
-        return imgOrder;
+    public int getImage_seq() {
+        return image_seq;
     }
 
-    public void setImgOrder(String imgOrder) {
-        this.imgOrder = imgOrder;
+    public void setImage_seq(int image_seq) {
+        this.image_seq = image_seq;
     }
 }

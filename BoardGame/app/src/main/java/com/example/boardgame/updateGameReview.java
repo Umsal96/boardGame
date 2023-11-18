@@ -13,10 +13,8 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,12 +22,15 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.boardgame.Adapter.ReviewViewPagerAdapter;
 import com.example.boardgame.Adapter.ViewPagerAdapter;
+import com.example.boardgame.item.GameReviewItem;
 import com.example.boardgame.item.ImageItem;
-import com.example.boardgame.item.MeetingBoardDetailItem;
 import com.example.boardgame.utility.FileUtils;
 import com.example.boardgame.utility.JsonToGetData;
 
@@ -51,90 +52,69 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class getMeetingBoardModify extends AppCompatActivity {
+public class updateGameReview extends AppCompatActivity {
 
     private ImageButton backPage;
-    private TextView meetingTitle;
-    private Button inputButton; // 수정 버튼
-    private TextView boardTitle; // 글 제목
-    private TextView boardContent; // 글 내용
-    private TextView boardType; // 글 종류
-    private Button inputImage; // 이미지 입력
-    private ViewPager2 imageViewPager;
-    private TextView currentPage;
-    private TextView totalPage;
-    MeetingBoardDetailItem item;
+    private Button inputReview;
+    private RatingBar inputRatingBar;
+    private EditText reviewContent;
+    private TextView nowNum;
+    private ViewPager2 reviewInputViewPager;
+    private ImageButton inputImageButton;
     private ArrayList<Uri> uriImageDataList = new ArrayList<>();
     private ArrayList<ImageItem> stringImageDataList = new ArrayList<>();
     private ActivityResultLauncher<Intent> galleryLauncher;
     private ActivityResultLauncher<Intent> cameraLauncher;
     private final int MY_PERMISSIONS_REQUEST_CAMERA = 125;
     private final int MY_PERMISSIONS_REQUEST_GALLERY = 124;
-    AlertDialog.Builder builder;
-    ViewPagerAdapter viewPagerAdapter;
-    private String currentPhotoPath;
-    String[] types;
+    GameReviewItem item;
     String[] parts;
-    int[] seqs;
+    ReviewViewPagerAdapter reviewViewPagerAdapter;
+    private String currentPhotoPath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_meeting_board_modify);
+        setContentView(R.layout.activity_update_game_review);
 
-        backPage = findViewById(R.id.backPage); // 뒤로 가기 버튼
-        meetingTitle = findViewById(R.id.meetingTitle);
-        inputButton = findViewById(R.id.inputButton);
-        boardTitle = findViewById(R.id.boardTitle);
-        boardContent = findViewById(R.id.boardContent);
-        boardType = findViewById(R.id.boardType);
-        inputImage = findViewById(R.id.inputImage); // 이미지 업로드 버튼
-        imageViewPager = findViewById(R.id.imageViewPager);
-        currentPage = findViewById(R.id.currentPage);
-        totalPage = findViewById(R.id.totalPage);
+        backPage = findViewById(R.id.backPage);
+        inputReview = findViewById(R.id.inputReview);
+        inputRatingBar = findViewById(R.id.inputRatingBar);
+        reviewContent = findViewById(R.id.reviewContent);
+        nowNum = findViewById(R.id.nowNum);
+        reviewInputViewPager = findViewById(R.id.reviewInputViewPager);
+        inputImageButton = findViewById(R.id.inputImageButton);
 
         Intent intent = getIntent();
-        int boardId = intent.getIntExtra("boardId", 0);
-        int meetingId = intent.getIntExtra("meetingId", 0);
-        int leaderId = intent.getIntExtra("leaderId", 0);
+        int reviewId = intent.getIntExtra("reviewId", 0);
 
-        viewPagerAdapter = new ViewPagerAdapter(stringImageDataList, uriImageDataList, boardId);
+        inputImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChooseImgDialog(); // 어떤 방식으로 이미지를 가져올것인지 다이얼로그 표시
+            }
+        });
 
-        viewPagerAdapter.setOnCancelClickListener(new ViewPagerAdapter.OnCancelClickListener() {
+        reviewViewPagerAdapter = new ReviewViewPagerAdapter(stringImageDataList, uriImageDataList);
+        reviewViewPagerAdapter.setOnCancelClickListener(new ViewPagerAdapter.OnCancelClickListener() {
             @Override
             public void onCancelClick(int position) {
-                totalPage.setText(String.valueOf(uriImageDataList.size() + stringImageDataList.size() - 1));
-                viewPagerAdapter.notifyDataSetChanged();
+                reviewViewPagerAdapter.notifyDataSetChanged();
             }
         });
 
-        imageViewPager.setAdapter(viewPagerAdapter);
+        reviewInputViewPager.setAdapter(reviewViewPagerAdapter);
 
-        System.out.println("getMeetingBoardModify leaderId : " + leaderId);
-
-        System.out.println("getMeetingBoardModify boardId : " + boardId);
-
-        // 쉐어드 프리퍼런스에 있는 유저의 아이디를 가져옴
-        // 1. 쉐어드 프리퍼런스를 사용하기위해 UserData 라는 이름의 파일을 가져옴
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", Context.MODE_PRIVATE);
-        // 쉐어드 프리퍼런스에 있는 userId 라는 키값을 가지고 있는 값을 가져오고 가져온 값을 int형으로 변환함
-        int UserId = Integer.parseInt(sharedPreferences.getString("userId", ""));
-
-        // 뒤로 가기 버튼
-        backPage.setOnClickListener(new View.OnClickListener() {
+        inputReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("getMeetingBoardModify boardId : " + boardId);
-                Intent intent1 = new Intent(getMeetingBoardModify.this, getMeetingBoard.class);
-                intent1.putExtra("boardId", boardId);
-                startActivity(intent1);
+                modifyReview(reviewId);
             }
         });
 
-        // 카테고리 클릭
-        boardType.setOnClickListener(new View.OnClickListener() {
+        inputRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
-            public void onClick(View v) {
-                showTypeDialog(leaderId, UserId);
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                nowNum.setText(String.valueOf((int) rating));
             }
         });
 
@@ -146,9 +126,8 @@ public class getMeetingBoardModify extends AppCompatActivity {
                         Uri photoUri = Uri.fromFile(new File(currentPhotoPath));
                         System.out.println("Uri : " + photoUri);
                         uriImageDataList.add(photoUri);
-                        imageViewPager.setVisibility(View.VISIBLE);
-                        viewPagerAdapter.notifyDataSetChanged();
-                        totalPage.setText(String.valueOf(uriImageDataList.size() + stringImageDataList.size()));
+                        reviewInputViewPager.setVisibility(View.VISIBLE);
+                        reviewViewPagerAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -166,10 +145,9 @@ public class getMeetingBoardModify extends AppCompatActivity {
                                 System.out.println(imageUri.toString());
                                 System.out.println("여러이미지");
                             }
-                            imageViewPager.setVisibility(View.VISIBLE);
-                            viewPagerAdapter.notifyDataSetChanged();
+                            reviewInputViewPager.setVisibility(View.VISIBLE);
+                            reviewViewPagerAdapter.notifyDataSetChanged();
                             System.out.println("최대 길이 : " + uriImageDataList.size());
-                            totalPage.setText(String.valueOf(uriImageDataList.size() + stringImageDataList.size()));
 
                         }else {
                             // 하난의 이미지를 선택한 경우
@@ -179,43 +157,17 @@ public class getMeetingBoardModify extends AppCompatActivity {
                     }
                 });
 
-        getMeetingBoard(boardId);
+        getGameReview(reviewId);
+    }
 
-        getMeetingName(meetingId);
-
-        inputButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                modifyBoard(boardId, leaderId);
-            }
-        });
-
-        // 이미지 입력
-        inputImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showChooseImgDialog(); // 어떤 방식으로 이미지를 가져올것인지 다이얼로그 표시
-            }
-        });
-
-        imageViewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-
-                currentPage.setText(String.valueOf(position + 1));
-            }
-        });
-    } // end onCreate
-
-    private void modifyBoard(int boardId, int leaderId){
+    private void modifyReview(int reviewId){
         System.out.println("getMeetingBoardModify image length : " + stringImageDataList.size());
 
         int lang = stringImageDataList.size() + uriImageDataList.size();
 
         System.out.println("이미지 길이 : " + lang);
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meetingBoard/updateMeetingBoard.php").newBuilder();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/gameReview/getGameUpdate.php").newBuilder();
         String url = urlBuilder.build().toString();
 
         RequestBody requestBody;
@@ -225,12 +177,10 @@ public class getMeetingBoardModify extends AppCompatActivity {
             // 이미지가 있을경울
             MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("boardId", String.valueOf(boardId))
-                    .addFormDataPart("boardTitle", boardTitle.getText().toString())
-                    .addFormDataPart("boardContent", boardContent.getText().toString())
-                    .addFormDataPart("boardType", boardType.getText().toString())
+                    .addFormDataPart("reviewId", String.valueOf(reviewId))
+                    .addFormDataPart("reviewContent", reviewContent.getText().toString())
+                    .addFormDataPart("reviewGrade", nowNum.getText().toString())
                     .addFormDataPart("imageOrder", String.valueOf(lang));
-
 
             // 각 이미지를 별도의 파트로 추가
             for (int i = 0; i < uriImageDataList.size(); i++) {
@@ -263,10 +213,9 @@ public class getMeetingBoardModify extends AppCompatActivity {
 
             // POST 요청 본문을 생성
             requestBody = new FormBody.Builder()
-                    .add("boardId", String.valueOf(boardId))
-                    .add("boardTitle", boardTitle.getText().toString())
-                    .add("boardContent", boardContent.getText().toString())
-                    .add("boardType", boardType.getText().toString())
+                    .add("reviewId", String.valueOf(reviewId))
+                    .add("reviewContent", reviewContent.getText().toString())
+                    .add("reviewGrade", nowNum.getText().toString())
                     .build();
         }
 
@@ -290,37 +239,12 @@ public class getMeetingBoardModify extends AppCompatActivity {
 
                     System.out.println(responseData);
 
-                    Intent intent = new Intent(getMeetingBoardModify.this, getMeetingBoard.class);
-                    intent.putExtra("leaderId", leaderId);
-                    intent.putExtra("boardId", boardId); // 게시글 고유 아이디
+                    Intent intent = new Intent(updateGameReview.this, getGame.class);
+                    intent.putExtra("gameId", item.getGame_seq());
                     startActivity(intent);
                 }
             }
         });
-    }
-
-    // 글의 카테고리 선택할수 있는 아이얼로그 표시하는 메소드
-    private void showTypeDialog(int leaderId, int UserId){ // 모임장 고유 아이디, 로그인유저의 고유 아이디
-        if(leaderId != UserId){
-            System.out.println("모임장이 아닙니다.");
-            types = getResources().getStringArray(R.array.boardType);
-        }else {
-            System.out.println("모임장이 맞습니다.");
-            types = getResources().getStringArray(R.array.boardLeaderType);
-        }
-        builder = new AlertDialog.Builder(getMeetingBoardModify.this);
-        builder.setTitle("게시글 카테고리");
-        // 다이얼로그에 리스트 담기
-        builder.setItems(types, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                System.out.println("선택한 글 카테고리는 : " + types[which]);
-                boardType.setText(types[which]);
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 
     private void showChooseImgDialog(){
@@ -418,41 +342,9 @@ public class getMeetingBoardModify extends AppCompatActivity {
         return image;
     }
 
-    // 모임의 이름을 가져오는 메소드
-    private void getMeetingName(int id){
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingTitle.php").newBuilder();
-        urlBuilder.addQueryParameter("id", String.valueOf(id)); // url 쿼리에 id 라는 메개변수 추가
-        String url = urlBuilder.build().toString();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        OkHttpClient client = new OkHttpClient();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if(response.isSuccessful()){
-                    String responseData = response.body().string();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            meetingTitle.setText(responseData);
-                        }
-                    });
-                }
-            }
-        });
-    } // end getMeetingName
-
-    private void getMeetingBoard(int boardId){
-        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meetingBoard/getMeetingBoard.php").newBuilder();
-        urlBuilder.addQueryParameter("boardId", String.valueOf(boardId));
+    private void getGameReview(int reviewId){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/gameReview/getGameReview.php").newBuilder();
+        urlBuilder.addQueryParameter("reviewId", String.valueOf(reviewId));
         String url = urlBuilder.build().toString();
         JsonToGetData jtg = new JsonToGetData();
 
@@ -473,17 +365,15 @@ public class getMeetingBoardModify extends AppCompatActivity {
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
                     System.out.println(responseData);
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            item = jtg.jsonGetToGetBoard(responseData);
+                            item = jtg.jsonGetToGetGameReview(responseData);
 
-                            // 글의 종류 설정
-                            boardType.setText(item.getBoard_type());
-                            // 글의 제목
-                            boardTitle.setText(item.getBoard_title());
-                            // 글의 내용
-                            boardContent.setText(item.getBoard_content());
+                            inputRatingBar.setRating(item.getReview_grade());
+                            nowNum.setText(String.valueOf((float) item.getReview_grade()));
+                            reviewContent.setText(item.getReview_content());
 
                             String img = item.getImage_urls();
                             String seqss = item.getTo_seqs();
@@ -510,32 +400,31 @@ public class getMeetingBoardModify extends AppCompatActivity {
                                     stringImageDataList.add(imageItem);
                                 }
 
-                                if(viewPagerAdapter == null){
+                                if(reviewViewPagerAdapter == null){
                                     // 이미지 어뎁터가 초기화 되지 않은경우
-                                    viewPagerAdapter.setData(stringImageDataList, uriImageDataList, boardId);
+                                    reviewViewPagerAdapter.setData(stringImageDataList, uriImageDataList);
 
-                                    imageViewPager.setAdapter(viewPagerAdapter);
+                                    reviewInputViewPager.setAdapter(reviewViewPagerAdapter);
                                 } else{
                                     // 이미지 어댑터가 이미 초기화된 경우
-                                    viewPagerAdapter.setData(stringImageDataList, uriImageDataList, boardId);
-                                    viewPagerAdapter.notifyDataSetChanged();
+                                    reviewViewPagerAdapter.setData(stringImageDataList, uriImageDataList);
+                                    reviewViewPagerAdapter.notifyDataSetChanged();
 
                                 }
 
-                                imageViewPager.setAdapter(viewPagerAdapter);
+                                reviewInputViewPager.setAdapter(reviewViewPagerAdapter);
                                 System.out.println("이미지의 갯수 : " + lang);
-                                totalPage.setText(String.valueOf(lang));
-                                viewPagerAdapter.notifyDataSetChanged();
-                                imageViewPager.setVisibility(View.VISIBLE);
+                                reviewViewPagerAdapter.notifyDataSetChanged();
+                                reviewInputViewPager.setVisibility(View.VISIBLE);
                             } else {
                                 System.out.println("이미지가 없습니다.");
-                                imageViewPager.setVisibility(View.GONE);
+                                reviewInputViewPager.setVisibility(View.GONE);
                             }
-
                         }
                     });
                 }
             }
         });
+
     }
 }

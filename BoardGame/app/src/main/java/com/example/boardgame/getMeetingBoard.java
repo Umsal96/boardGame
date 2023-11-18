@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.boardgame.Adapter.BoardImageViewPagerAdapter;
 import com.example.boardgame.Adapter.CommentReplyAdapter;
+import com.example.boardgame.dialog.ModifyDialog;
 import com.example.boardgame.item.CommentReplyItem;
 import com.example.boardgame.item.MeetingBoardDetailItem;
 import com.example.boardgame.utility.JsonToData;
@@ -62,7 +63,6 @@ public class getMeetingBoard extends AppCompatActivity {
     BoardImageViewPagerAdapter imageViewPagerAdapter;
     String[] parts;
     int meetingId;
-//    int UserId; // 로그인한 유저의 고유 아이디
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +72,7 @@ public class getMeetingBoard extends AppCompatActivity {
         int boardId = intent.getIntExtra("boardId", 0);
         int leaderId = intent.getIntExtra("leaderId", 0);
 
-        System.out.println("getMeeetingBoard boardId : " + boardId);
+        System.out.println("getMeetingBoard boardId : " + boardId);
 
         backPage = findViewById(R.id.backPage); // 뒤로 가기 버튼
         moreMenu = findViewById(R.id.moreMenu); // 메뉴를 더 보여주는 버튼
@@ -99,7 +99,22 @@ public class getMeetingBoard extends AppCompatActivity {
         // 댓글 목록을 보여주는 리사이클러뷰
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getMeetingBoard.this);
         commentCommentRecyclerView.setLayoutManager(linearLayoutManager);
-        commentReplyAdapter = new CommentReplyAdapter(cri);
+        commentReplyAdapter = new CommentReplyAdapter(cri, UserId, 1, boardId, leaderId);
+
+        // 댓글 더보기
+        commentReplyAdapter.setOnMoreMenuClickListener(new CommentReplyAdapter.OnMoreMenuClickListener() {
+            @Override
+            public void onMoreMenuClick(int position) {
+                showMenuDialog(cri.get(position), boardId);
+            }
+        });
+        // 대댓글 더보기
+        commentReplyAdapter.setOnReplyMoreMenuClickListener(new CommentReplyAdapter.OnReplyMoreMenuClickListener() {
+            @Override
+            public void onReplyMoreMenuClick(int position) {
+
+            }
+        });
 
         commentCommentRecyclerView.setAdapter(commentReplyAdapter);
         inputComment.setOnClickListener(new View.OnClickListener() {
@@ -141,7 +156,6 @@ public class getMeetingBoard extends AppCompatActivity {
             public void onClick(View v) {
                 PopupMenu popupMenu = new PopupMenu(getMeetingBoard.this, v); // 팝업 메뉴 등록
                 popupMenu.getMenuInflater().inflate(R.menu.meeting_board_select_menu, popupMenu.getMenu());
-
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -152,8 +166,10 @@ public class getMeetingBoard extends AppCompatActivity {
                                 intent1.putExtra("boardId", boardId);
                                 intent1.putExtra("leaderId", leaderId);
                                 startActivity(intent1);
+                                break;
                             case R.id.action_board_delete:
                                 deleteDialog(boardId, meetingId);
+                                break;
                         }
                         return false;
                     }
@@ -166,6 +182,134 @@ public class getMeetingBoard extends AppCompatActivity {
         getBoardCommentList(boardId);
 
     }
+    // 댓글과 대댓글에서 더보기 메뉴를 클릭했을때 보여주는 다이얼로그
+    private void showMenuDialog(CommentReplyItem item, int boardId){
+        String[] items = {"수정하기", "삭제하기"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == 0){
+                    System.out.println("수정하기 클릭");
+                    ModifyDialog modifyDialog = new ModifyDialog(getMeetingBoard.this, item);
+                    modifyDialog.setOnDialogAcceptClickListener(new ModifyDialog.OnDialogAcceptClickListener() {
+                        @Override
+                        public void onDialogAcceptClick() {
+                            String content = modifyDialog.getContent();
+                            int replyId = modifyDialog.getReplyId();
+                            System.out.println("댓글 내용 : " + content);
+                            System.out.println("댓글 아이디 : " + replyId);
+                            modifyReply(replyId, content, boardId);
+                            modifyDialog.dismiss();
+                        }
+                    });
+                    modifyDialog.show();
+                } else if (which == 1) {
+                    System.out.println("삭제하기 클릭");
+                    deleteCommentDialog(item.getReply_seq(), boardId, item.getReply_ref());
+                }
+            }
+        });
+
+        // 다이얼로그 표시
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // 댓글을 삭제 겠냐고 물어보는 다이얼로그 표시
+    private void deleteCommentDialog(int replyId, int boardId, int replyRef){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("댓글을 삭제 하시겠습니까?")
+                .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteComment(replyId, boardId, replyRef);
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // 댓글 삭제
+    private void deleteComment(int replyId, int boardId, int replyRef){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/reply/deleteReply.php").newBuilder();
+        urlBuilder.addQueryParameter("replyId", String.valueOf(replyId)); // url 쿼리에 id 라는 메개변수 추가
+        urlBuilder.addQueryParameter("replyRef", String.valueOf(replyRef));
+        String url = urlBuilder.build().toString(); // 최종 url 생성
+
+        // Request 객체 생성
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        // client 객체 생성
+        OkHttpClient client = new OkHttpClient();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    System.out.println(responseData);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getBoardCommentList(boardId);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    // 댓글 수정
+    private void modifyReply(int replyId, String content, int boardId){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/reply/updateReply.php").newBuilder();
+        urlBuilder.addQueryParameter("replyId", String.valueOf(replyId)); // url 쿼리에 id 라는 메개변수 추가
+        urlBuilder.addQueryParameter("content", content);
+        String url = urlBuilder.build().toString(); // 최종 url 생성
+
+        // Request 객체 생성
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        // client 객체 생성
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    System.out.println(responseData);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            getBoardCommentList(boardId);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
     // 댓글 목록 가져오는 메소드
     private void getBoardCommentList(int boardId){
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/reply/getReplyList.php").newBuilder();
@@ -246,7 +390,7 @@ public class getMeetingBoard extends AppCompatActivity {
     private void deleteDialog(int boardId, int meetingId){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("게시글 삭제하시겠습니까? : ")
-                .setPositiveButton("제거", new DialogInterface.OnClickListener() {
+                .setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         deleteBoard(boardId, meetingId);

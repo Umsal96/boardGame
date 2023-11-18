@@ -153,14 +153,18 @@ public class getMeetingBoardList extends Fragment{
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
                     System.out.println(responseData);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mt.clear();
-                            mt.addAll(jt.jsonToMeetingBoard(responseData));
-                            meetingBoardAdapter.notifyDataSetChanged();
-                        }
-                    });
+
+                    if (getActivity() != null && !getActivity().isFinishing()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mt.clear();
+                                mt.addAll(jt.jsonToMeetingBoard(responseData));
+                                meetingBoardAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+
 
                 }
             }

@@ -3,6 +3,8 @@ package com.example.boardgame.utility;
 import android.util.Pair;
 
 import com.example.boardgame.item.CommentReplyItem;
+import com.example.boardgame.item.GameItem;
+import com.example.boardgame.item.GameReviewItem;
 import com.example.boardgame.item.MeetingBoardItem;
 import com.example.boardgame.item.MeetingItem;
 import com.example.boardgame.item.ScheduleItem;
@@ -11,6 +13,7 @@ import com.example.boardgame.item.UserItem;
 import com.example.boardgame.item.UserNItem;
 import com.example.boardgame.item.WaitingItem;
 import com.example.boardgame.vo.meetingVO;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
@@ -26,6 +29,61 @@ import java.util.Locale;
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
+
+    // 보드게임 리뷰 리스트
+    public ArrayList<GameReviewItem> jsonToGameReview(String json){
+        ArrayList<GameReviewItem> gri = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                GameReviewItem gi = new GameReviewItem();
+                gi.setReview_seq(Integer.parseInt(jsonObject.getString("review_seq")));
+                gi.setUser_seq(Integer.parseInt(jsonObject.getString("user_seq")));
+                gi.setGame_seq(Integer.parseInt(jsonObject.getString("game_seq")));
+                gi.setReview_content(jsonObject.getString("review_content"));
+                gi.setReview_grade(jsonObject.has("review_grade") && !jsonObject.isNull("review_grade") ? Float.parseFloat(jsonObject.getString("review_grade")) : 0.0f);
+                gi.setReview_type(Integer.parseInt(jsonObject.getString("review_type")));
+                gi.setReview_create_date(jsonObject.getString("review_create_date"));
+                gi.setUser_url(jsonObject.getString("user_url"));
+                gi.setUser_nickname(jsonObject.getString("user_nickname"));
+                gi.setTo_seqs(jsonObject.getString("to_seqs"));
+                gi.setImage_urls(jsonObject.getString("image_urls"));
+
+                gri.add(gi);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return gri;
+    }
+
+    // 보드게임 리스트를 가져옴
+    public ArrayList<GameItem> jsonToGameList(String json){
+        ArrayList<GameItem> gii = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                GameItem gi = new GameItem();
+                gi.setGame_seq(Integer.parseInt(jsonObject.getString("game_seq")));
+                gi.setGame_name(jsonObject.getString("game_name"));
+                gi.setGame_summary(jsonObject.getString("game_summary"));
+                gi.setGame_min(Integer.parseInt(jsonObject.getString("game_min")));
+                gi.setGame_max(Integer.parseInt(jsonObject.getString("game_max")));
+                gi.setGame_detail(jsonObject.getString("game_detail"));
+                gi.setGame_create_data(jsonObject.getString("game_create_data"));
+                gi.setImage_url(jsonObject.getString("image_url"));
+                gi.setAverage_review_grade(jsonObject.has("average_review_grade") && !jsonObject.isNull("average_review_grade") ? Float.parseFloat(jsonObject.getString("average_review_grade")) : 0.0f);
+                gii.add(gi);
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return gii;
+    }
 
     // 게시글의 댓글 리스트를 가져옴
     public ArrayList<CommentReplyItem> jsonToBoardComment(String json){

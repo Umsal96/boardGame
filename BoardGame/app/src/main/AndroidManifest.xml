@@ -28,6 +28,18 @@
         android:theme="@style/Theme.BoardGame"
         tools:targetApi="31">
         <activity
+            android:name=".updateGameReview"
+            android:exported="false" />
+        <activity
+            android:name=".inputGameReview"
+            android:exported="false" />
+        <activity
+            android:name=".getGame"
+            android:exported="false" />
+        <activity
+            android:name=".inputBoardGame"
+            android:exported="false" />
+        <activity
             android:name=".getMeetingBoardModify"
             android:exported="false" />
         <activity

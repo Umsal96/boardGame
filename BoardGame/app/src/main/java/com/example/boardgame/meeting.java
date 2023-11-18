@@ -203,7 +203,6 @@ public class meeting extends Fragment {
                 .build();
 
         OkHttpClient client = new OkHttpClient();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onResponse(Call call, Response response) throws IOException {

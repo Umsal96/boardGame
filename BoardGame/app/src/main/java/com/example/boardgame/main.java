@@ -11,9 +11,10 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class main extends AppCompatActivity {
 
-    meeting meeting; // 미팅 페이지
-    profile profile; // 프로파일 페이지
-    home home; // 메인 페이지
+    private meeting meeting; // 미팅 페이지
+    private profile profile; // 프로파일 페이지
+    private home home; // 메인 페이지
+    private game game;// 게임 정보 페이지
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class main extends AppCompatActivity {
         meeting = new meeting();
         profile = new profile();
         home = new home();
+        game = new game();
 
         Intent intent = getIntent();
         int chPage = intent.getIntExtra("where", 0); // 어디서 페이지가 이동해 왔는지 저장
@@ -38,6 +40,9 @@ public class main extends AppCompatActivity {
         if(chPage != 0 && chPage == 5){
             getSupportFragmentManager().beginTransaction().replace(R.id.container, profile).commit();
             MainNavigationBarView.setSelectedItemId(R.id.profile);
+        }else if(chPage != 0 && chPage == 3){
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, game).commit();
+            MainNavigationBarView.setSelectedItemId(R.id.boardGame);
         }
 
         // 메인 네비게시션 바를 클릭햇을때
@@ -56,6 +61,9 @@ public class main extends AppCompatActivity {
                         return true;
                     case R.id.profile:
                         getSupportFragmentManager().beginTransaction().replace(R.id.container, profile).commit();
+                        return true;
+                    case R.id.boardGame:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, game).commit();
                         return true;
                 }
 
