@@ -320,16 +320,18 @@ public class getMeetingHome extends Fragment {
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()){
                     String responseData = response.body().string();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            waitingItem = js.jsonToWaitingUserList(responseData);
-                            if(sk == 1){
-                                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity(), userId);
-                                waitingDialog.show();
+                    if(getActivity() != null && !getActivity().isFinishing()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                waitingItem = js.jsonToWaitingUserList(responseData);
+                                if(sk == 1){
+                                    WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity(), userId);
+                                    waitingDialog.show();
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         });
@@ -497,18 +499,21 @@ public class getMeetingHome extends Fragment {
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
                     System.out.println("이것 : " + responseData);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            smt.clear();
-                            smt.addAll(jt.jsonToScheduleMemberList(responseData));
-                            System.out.println("여기");
-                            for (int i = 0; i < smt.size(); i++) {
-                                System.out.println(smt.get(i).getUser_seq());
-                            }
+                    if (getActivity() != null && !getActivity().isFinishing()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                smt.clear();
+                                smt.addAll(jt.jsonToScheduleMemberList(responseData));
+                                System.out.println("여기");
+                                for (int i = 0; i < smt.size(); i++) {
+                                    System.out.println(smt.get(i).getUser_seq());
+                                }
 
-                        }
-                    });
+                            }
+                        });
+                    }
+
 
                 }
             }
@@ -542,20 +547,22 @@ public class getMeetingHome extends Fragment {
                     if(jt.jsonSchedule(responseData) != null){
                         st.addAll(jt.jsonSchedule(responseData));
                     }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            scheduleAdapter.notifyDataSetChanged();
-                            if(st.size() == 0){
-                                constraintLayout.setVisibility(View.GONE);
-                                textView14.setVisibility(View.VISIBLE);
-                            } else {
-                                textView14.setVisibility(View.GONE);
-                                constraintLayout.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    });
 
+                    if (getActivity() != null && !getActivity().isFinishing()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                scheduleAdapter.notifyDataSetChanged();
+                                if(st.size() == 0){
+                                    constraintLayout.setVisibility(View.GONE);
+                                    textView14.setVisibility(View.VISIBLE);
+                                } else {
+                                    textView14.setVisibility(View.GONE);
+                                    constraintLayout.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        });
+                    }
                 }
             } // end onResponse
         });
@@ -583,44 +590,48 @@ public class getMeetingHome extends Fragment {
                     JsonToData jt = new JsonToData(); // 받아온 json을 vo객체에 담는 함수가 있는 클래스
                     vo = jt.jsonMeetingGet(responseData);
 
-                    // UI 업데이트는 메인 스레드에서 실행해야 함
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                    if (getActivity() != null && !getActivity().isFinishing()){
+                        // UI 업데이트는 메인 스레드에서 실행해야 함
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
 
-                            balloon = new Balloon.Builder(getContext())
-                                    .setArrowSize(10)
-                                    .setArrowOrientation(ArrowOrientation.START)
-                                    .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                                    .setArrowPosition(0.5f)
-                                    .setWidth(BalloonSizeSpec.WRAP)
-                                    .setHeight(65)
-                                    .setTextSize(15f)
-                                    .setCornerRadius(4f)
-                                    .setAlpha(0.9f)
-                                    .setText(vo.getMeetingPlaceName() + "<br>" + vo.getMeetingAddress())
-                                    .setTextColor(ContextCompat.getColor(getContext(), R.color.black))
-                                    .setTextIsHtml(true)
-                                    .setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white))
-                                    .setBalloonAnimation(BalloonAnimation.FADE)
-                                    .setLifecycleOwner(lifecycleOwner)
-                                    .build();
+                                balloon = new Balloon.Builder(getContext())
+                                        .setArrowSize(10)
+                                        .setArrowOrientation(ArrowOrientation.START)
+                                        .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                                        .setArrowPosition(0.5f)
+                                        .setWidth(BalloonSizeSpec.WRAP)
+                                        .setHeight(65)
+                                        .setTextSize(15f)
+                                        .setCornerRadius(4f)
+                                        .setAlpha(0.9f)
+                                        .setText(vo.getMeetingPlaceName() + "<br>" + vo.getMeetingAddress())
+                                        .setTextColor(ContextCompat.getColor(getContext(), R.color.black))
+                                        .setTextIsHtml(true)
+                                        .setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white))
+                                        .setBalloonAnimation(BalloonAnimation.FADE)
+                                        .setLifecycleOwner(lifecycleOwner)
+                                        .build();
 
-                            titleName2.setText(vo.getMeetingName()); // 모임의 이름을 설정함
-                            meetingContent.setText(vo.getMeetingContent()); // 모임의 내용을 설정함
+                                titleName2.setText(vo.getMeetingName()); // 모임의 이름을 설정함
+                                meetingContent.setText(vo.getMeetingContent()); // 모임의 내용을 설정함
 
-                            if (vo.getMeetingUrl() != null && !vo.getMeetingUrl().equals("null") && !vo.getMeetingUrl().equals("")) {
-                                System.out.println("정상적인 이미지");
-                                System.out.println("url : " + vo.getMeetingUrl());
-                                Glide.with(getContext()).load("http://3.38.213.196" + vo.getMeetingUrl()).into(imageView2);
-                            } else {
-                                System.out.println("url : " + vo.getMeetingUrl());
-                                System.out.println("아닌이미지");
-                                imageView2.setImageResource(R.drawable.img);
+                                if (vo.getMeetingUrl() != null && !vo.getMeetingUrl().equals("null") && !vo.getMeetingUrl().equals("")) {
+                                    System.out.println("정상적인 이미지");
+                                    System.out.println("url : " + vo.getMeetingUrl());
+                                    Glide.with(getContext()).load("http://3.38.213.196" + vo.getMeetingUrl()).into(imageView2);
+                                } else {
+                                    System.out.println("url : " + vo.getMeetingUrl());
+                                    System.out.println("아닌이미지");
+                                    imageView2.setImageResource(R.drawable.img);
+                                }
+
                             }
+                        });
+                    }
 
-                        }
-                    });
+
                 } else {
                     Toast.makeText(getContext(), "데이터를 가져오는데 실패했습니다 : " + response.body().string(), Toast.LENGTH_SHORT).show();
                 }
@@ -693,67 +704,70 @@ public class getMeetingHome extends Fragment {
                     JsonToData jt = new JsonToData();
 
                     data = jt.jsonToUserList(responseData);
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                    if (getActivity() != null && !getActivity().isFinishing()){
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
 
-                            boolean isUserJoined = false; // 유저가 모임가입이 됬었는지 확인
-                            boolean isLeader = false; // 유저가 방장인지 검사
+                                boolean isUserJoined = false; // 유저가 모임가입이 됬었는지 확인
+                                boolean isLeader = false; // 유저가 방장인지 검사
 
-                            // 모임 인원 리스트중에서 모임장의 유저 고유 아이디를 찾기위한 방복문
-                            for (int i = 0; i < data.size(); i++) {
-                                if(data.get(i).getLeader() == 1){
-                                    LeaderSeq = data.get(i).getUserSeq();
-                                    fragToActData.onDataPass(data.get(i).getUserSeq(), data.size());
-                                    break;
-                                }
-                            }
-
-                            // 현재 유저가 방장인지 확인
-                            for (int i = 0; i < data.size(); i++) {
-                                if(data.get(i).getUserSeq() == userId){ // 가입이 된 유저다
-                                    if(data.get(i).getLeader() == 1){ // 방장이다.
-                                        isLeader = true;
-                                        isUserJoined = true;
-                                        System.out.println("리더입니다.");
-                                        break;
-                                    } else { // 방장은 아니다
-                                        isLeader = false;
-                                        isUserJoined = true;
-                                        System.out.println("리더가 아닙니다1");
+                                // 모임 인원 리스트중에서 모임장의 유저 고유 아이디를 찾기위한 방복문
+                                for (int i = 0; i < data.size(); i++) {
+                                    if(data.get(i).getLeader() == 1){
+                                        LeaderSeq = data.get(i).getUserSeq();
+                                        fragToActData.onDataPass(data.get(i).getUserSeq(), data.size());
                                         break;
                                     }
-                                }else {
-                                    System.out.println("가입된 유저가 아닙니다.1");
+                                }
+
+                                // 현재 유저가 방장인지 확인
+                                for (int i = 0; i < data.size(); i++) {
+                                    if(data.get(i).getUserSeq() == userId){ // 가입이 된 유저다
+                                        if(data.get(i).getLeader() == 1){ // 방장이다.
+                                            isLeader = true;
+                                            isUserJoined = true;
+                                            System.out.println("리더입니다.");
+                                            break;
+                                        } else { // 방장은 아니다
+                                            isLeader = false;
+                                            isUserJoined = true;
+                                            System.out.println("리더가 아닙니다1");
+                                            break;
+                                        }
+                                    }else {
+                                        System.out.println("가입된 유저가 아닙니다.1");
+                                    }
+                                }
+
+                                if(!isUserJoined && !isLeader){ // 모임 가입된 유저가 아님
+                                    button4.setVisibility(View.VISIBLE); // 회원가입 버튼
+                                    updateMeeting.setVisibility(View.GONE); // 업데이트 버튼
+                                    intoSchedule.setEnabled(false);
+                                    intoBoard.setEnabled(false);
+                                    waitMemberButton.setVisibility(View.GONE);
+                                    getWaitList(userId, id); // 해당 모임의 신청자 리스트를 보여줌 userId = 유저의 고유 아이디, id = 모임의 고유 아이디
+                                    System.out.println("회원가입된 유저가 아님");
+                                } else if (isUserJoined && !isLeader) { // 모임가입된 유저인데 모임장이 아님
+                                    button4.setVisibility(View.GONE);
+                                    updateMeeting.setVisibility(View.GONE);
+                                    waitMemberButton.setVisibility(View.GONE);
+                                    intoSchedule.setEnabled(true);
+                                    intoBoard.setEnabled(true);
+
+                                    System.out.println("회원가입된 유저");
+                                } else { // 모임 가입된 유저인데 모임장임
+
+                                    button4.setVisibility(View.GONE);
+                                    updateMeeting.setVisibility(View.VISIBLE);
+                                    intoSchedule.setEnabled(true);
+                                    intoBoard.setEnabled(true);
+                                    System.out.println("모임장");
                                 }
                             }
+                        });
+                    }
 
-                            if(!isUserJoined && !isLeader){ // 모임 가입된 유저가 아님
-                                button4.setVisibility(View.VISIBLE); // 회원가입 버튼
-                                updateMeeting.setVisibility(View.GONE); // 업데이트 버튼
-                                intoSchedule.setEnabled(false);
-                                intoBoard.setEnabled(false);
-                                waitMemberButton.setVisibility(View.GONE);
-                                getWaitList(userId, id); // 해당 모임의 신청자 리스트를 보여줌 userId = 유저의 고유 아이디, id = 모임의 고유 아이디
-                                System.out.println("회원가입된 유저가 아님");
-                            } else if (isUserJoined && !isLeader) { // 모임가입된 유저인데 모임장이 아님
-                                button4.setVisibility(View.GONE);
-                                updateMeeting.setVisibility(View.GONE);
-                                waitMemberButton.setVisibility(View.GONE);
-                                intoSchedule.setEnabled(true);
-                                intoBoard.setEnabled(true);
-
-                                System.out.println("회원가입된 유저");
-                            } else { // 모임 가입된 유저인데 모임장임
-
-                                button4.setVisibility(View.GONE);
-                                updateMeeting.setVisibility(View.VISIBLE);
-                                intoSchedule.setEnabled(true);
-                                intoBoard.setEnabled(true);
-                                System.out.println("모임장");
-                            }
-                        }
-                    });
                 }
             }
         });

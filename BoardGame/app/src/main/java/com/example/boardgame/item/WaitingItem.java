@@ -9,31 +9,24 @@ public class WaitingItem {
     public String getUserUrl() {
         return userUrl;
     }
-
     public void setUserUrl(String userUrl) {
         this.userUrl = userUrl;
     }
-
     public String getUserNick() {
         return userNick;
     }
-
     public void setUserNick(String userNick) {
         this.userNick = userNick;
     }
-
     public int getUserSeq() {
         return userSeq;
     }
-
     public void setUserSeq(int userSeq) {
         this.userSeq = userSeq;
     }
-
     public int getMeetingSeq() {
         return meetingSeq;
     }
-
     public void setMeetingSeq(int meetingSeq) {
         this.meetingSeq = meetingSeq;
     }

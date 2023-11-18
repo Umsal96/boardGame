@@ -11,6 +11,15 @@ public class MeetingBoardDetailItem {
     private String user_url;
     private String user_nickname;
     private String image_urls;
+    private String to_seqs;
+
+    public String getTo_seqs() {
+        return to_seqs;
+    }
+
+    public void setTo_seqs(String to_seqs) {
+        this.to_seqs = to_seqs;
+    }
 
     public int getBoard_seq() {
         return board_seq;

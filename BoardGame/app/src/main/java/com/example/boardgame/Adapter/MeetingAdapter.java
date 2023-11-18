@@ -18,7 +18,6 @@ import com.example.boardgame.item.MeetingItem;
 import java.util.ArrayList;
 
 public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.ViewHolder> {
-
     private ArrayList<MeetingItem> meetingItems; // 아이템 어레이리스트 선언
     private OnItemClickListener itemClickListener; // 클릭 이벤트 선언
 

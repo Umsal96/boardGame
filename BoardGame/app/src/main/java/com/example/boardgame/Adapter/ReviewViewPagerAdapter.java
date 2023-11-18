@@ -17,7 +17,6 @@ import com.example.boardgame.R;
 import com.example.boardgame.item.ImageItem;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -27,20 +26,20 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.ViewHolder>{
+public class ReviewViewPagerAdapter extends RecyclerView.Adapter<ReviewViewPagerAdapter.ViewHolder>{
+
     private ArrayList<Uri> uriImageDataList;
     private ArrayList<ImageItem> stringImageDataList;
 
-    int boardId;
-
-    private OnCancelClickListener onCancelClickListener;
+    private ViewPagerAdapter.OnCancelClickListener onCancelClickListener;
     public interface OnCancelClickListener{
         void onCancelClick(int position);
     }
 
-    public void setOnCancelClickListener(OnCancelClickListener listener){
+    public void setOnCancelClickListener(ViewPagerAdapter.OnCancelClickListener listener){
         onCancelClickListener = listener;
     }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private ImageView image;
         private ImageButton cancel;
@@ -52,16 +51,15 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
         }
     }
 
-    public ViewPagerAdapter(ArrayList<ImageItem> stringImageDataList, ArrayList<Uri> uriImageDataList, int boardId){
+    public ReviewViewPagerAdapter(ArrayList<ImageItem> stringImageDataList, ArrayList<Uri> uriImageDataList){
         this.stringImageDataList = stringImageDataList;
         this.uriImageDataList = uriImageDataList;
-        this.boardId = boardId;
+
     }
 
-    public void setData(ArrayList<ImageItem> stringImageDataList, ArrayList<Uri> uriImageDataList, int boardId){
+    public void setData(ArrayList<ImageItem> stringImageDataList, ArrayList<Uri> uriImageDataList){
         this.stringImageDataList = stringImageDataList;
         this.uriImageDataList = uriImageDataList;
-        this.boardId = boardId;
         notifyDataSetChanged();
     }
 
@@ -71,7 +69,7 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.image_viewpager_item, parent, false);
 
-        ViewPagerAdapter.ViewHolder viewHolder = new ViewPagerAdapter.ViewHolder(view);
+        ReviewViewPagerAdapter.ViewHolder viewHolder = new ReviewViewPagerAdapter.ViewHolder(view);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,9 +80,8 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
         return viewHolder;
     }
 
-
     @Override
-    public void onBindViewHolder(@NonNull ViewPagerAdapter.ViewHolder holder, int position){
+    public void onBindViewHolder(@NonNull ReviewViewPagerAdapter.ViewHolder holder, int position){
         int viewType = getItemViewType(position);
 
         if (viewType == 0) {
