@@ -1,5 +1,8 @@
 package com.example.boardgame;
 
+import static android.content.ContentValues.TAG;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -12,27 +15,42 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.boardgame.service.ChattingSocketService;
 import com.example.boardgame.service.TestService;
 import com.example.boardgame.service.socketService;
+import com.example.boardgame.utility.JwtDecoder;
 import com.example.boardgame.utility.NotificationChannelManager;
+import com.example.boardgame.vo.FirstSocket;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -52,6 +70,8 @@ public class Login extends AppCompatActivity {
     private EditText inputPassword; // 비밀번호 입력
     String email; // 로그인 할때의 이메일을 저장하는 변수
     String pass; // 로그인 할때의 비밀번호를 저장하는 변수
+
+    String token;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +84,26 @@ public class Login extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword); // 비밀번호 입력 칸
         findId = findViewById(R.id.findId); // 아이디 찾기 페이지로 이동하는 버튼
         findPassword = findViewById(R.id.findPassword); // 비밀번호 찾기 페이지로 이동하는 버튼
+        FirebaseApp.initializeApp(this);
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        token = task.getResult();
+                        System.out.println("토큰 입니다: "+ token);
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+//                        Toast.makeText(Login.this, msg, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
 
         // SharedPreferences에서 저장된 토큰을 가져옴
         // 이 코드는 "UserData"라는 이름의 SharedPreferences 객체를 MODE_PRIVATE 모드로 생성합니다.
@@ -82,11 +122,18 @@ public class Login extends AppCompatActivity {
             }
         }
 
+        checkNotificationPermission(Login.this);
+
+        if (userIdString != null) {
+            // 유저가 가입한 모임 내역 가져옴
+            System.out.println("Login 서비스 시작 ");
+            getMeetingList(userIdString, token);
+        }
 
         // 서비스 시작
-        Intent serviceIntent = new Intent(this, socketService.class);
-        serviceIntent.putExtra("user_id", userId);
-        startService(serviceIntent);
+//        Intent serviceIntent = new Intent(this, socketService.class);
+//        serviceIntent.putExtra("user_id", userId);
+//        startService(serviceIntent);
 
         // 토큰 검사 및 자동 로그인 처리
         // saveToken에 값이 저장되어있는지 확인
@@ -99,6 +146,10 @@ public class Login extends AppCompatActivity {
                 showToastMessage("자동 로그인"); // 토스트 에 자동로그인이 나오도록 설정
                 finish(); // 생명주기를 끝냄
             }
+
+//            String jwtContent = JwtDecoder.getUserIdFromToken(saveToken);
+
+//            System.out.println("토큰 내용: " + jwtContent);
         }
 
         // 회원가입 버튼을 눌렀을때 약관 페이지로 이동
@@ -143,6 +194,64 @@ public class Login extends AppCompatActivity {
         });
 
     } // end onCreate
+    // 유저가 가입한 모임 내역 가져옴
+    public void getMeetingList(String userId, String jsonToken){
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingUserList.php").newBuilder();
+        urlBuilder.addQueryParameter("userId", userId);
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if(response.isSuccessful()){
+                    String responseData = response.body().string();
+                    System.out.println("유저가 가입한 모임 내역을 가져옴");
+                    System.out.println(responseData);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            FirstSocket firstSocket = new FirstSocket();
+                            firstSocket.setUserSeq(Integer.parseInt(userId));
+                            try{
+                                JSONArray jsonArray = new JSONArray(responseData);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    int meetingsId = jsonArray.getInt(i);
+                                    firstSocket.addChatSeq(meetingsId);
+                                }
+                                if(firstSocket.getChatSeqs() == null){
+                                    System.out.println("null 입니다.");
+                                }else{
+                                    System.out.println(firstSocket.getChatSeqs().toString());
+                                    Gson gson = new Gson();
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("userSeq", firstSocket.getUserSeq());
+                                    map.put("chatSeqs", firstSocket.getChatSeqs());
+                                    map.put("token", jsonToken);
+                                    String json = gson.toJson(map);
+//                                    System.out.println("json: " + json);
+
+                                    Intent chatServiceIntent = new Intent(Login.this, ChattingSocketService.class);
+                                    chatServiceIntent.putExtra("json", json);
+                                    startService(chatServiceIntent);
+                                }
+                            }catch (JSONException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     // JWT 토큰 유효성 검사
     private boolean isTokenValid(String token){

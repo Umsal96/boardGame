@@ -24,9 +24,7 @@ public class GetGameReviewAdapter extends RecyclerView.Adapter<GetGameReviewAdap
     private ArrayList<GameReviewItem> gameItems;
     private String[] images;
     private int userId;
-
     private OnMoreMenuClickListener onMoreMenuClickListener;
-
     public interface OnMoreMenuClickListener{
         void onMoreMenuClick(int position, View v);
     }

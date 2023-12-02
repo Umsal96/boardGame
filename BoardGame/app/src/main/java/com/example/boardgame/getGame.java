@@ -71,7 +71,6 @@ public class getGame extends AppCompatActivity {
         reviewRecyclerView = findViewById(R.id.reviewRecyclerView);
         ratingBar = findViewById(R.id.ratingBar);
         gameArg = findViewById(R.id.gameArg);
-
         backPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -218,7 +217,6 @@ public class getGame extends AppCompatActivity {
                 if(response.isSuccessful()){
                     String responseData = response.body().string();
                     System.out.println(responseData);
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

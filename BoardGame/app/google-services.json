@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "88377678363",
+    "project_id": "boardgame-1841e",
+    "storage_bucket": "boardgame-1841e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88377678363:android:9ba0c9e267dfcc371076be",
+        "android_client_info": {
+          "package_name": "com.example.boardgame"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAY7KANmpy_vhiiSrA8b2Rks7UV8i0ufbc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

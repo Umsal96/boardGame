@@ -11,6 +11,10 @@
     <color name="lightBlue">#A9E2F3</color>
     <color name="lightGray">#F2F2F2</color>
     <color name="gray">#A4A4A4</color>
+    <color name="chattingRoomBack">#2E2E2E</color>
     <color name="green">#00FF00</color>
     <color name="red">#FF0000</color>
+    <color name="myChatColor">#fef01b</color>
+    <color name="otherChatColor">#ffffff</color>
+    <color name="chatTextColor">#333333</color>
 </resources>

@@ -90,6 +90,15 @@ public class inputGameReview extends AppCompatActivity {
 
         imageViewPagerAdapter = new ImageViewPagerAdapter(imageDataList);
         reviewInputViewPager.setAdapter(imageViewPagerAdapter);
+
+        backPage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(inputGameReview.this, getGame.class);
+                intent1.putExtra("gameId", gameId);
+                startActivity(intent1);
+            }
+        });
         inputRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {

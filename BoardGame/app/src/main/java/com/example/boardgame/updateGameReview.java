@@ -86,7 +86,6 @@ public class updateGameReview extends AppCompatActivity {
 
         Intent intent = getIntent();
         int reviewId = intent.getIntExtra("reviewId", 0);
-
         inputImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -372,7 +371,7 @@ public class updateGameReview extends AppCompatActivity {
                             item = jtg.jsonGetToGetGameReview(responseData);
 
                             inputRatingBar.setRating(item.getReview_grade());
-                            nowNum.setText(String.valueOf((float) item.getReview_grade()));
+                            nowNum.setText(String.valueOf((int) item.getReview_grade()));
                             reviewContent.setText(item.getReview_content());
 
                             String img = item.getImage_urls();

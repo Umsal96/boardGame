@@ -31,7 +31,6 @@ public class socketService extends Service {
     private DataOutputStream dos;
     int userId; // 로그인한 유저
     String CHANNEL_ID = "1001";
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // 데이터 수신을 위한 별도의 스레드 셍성

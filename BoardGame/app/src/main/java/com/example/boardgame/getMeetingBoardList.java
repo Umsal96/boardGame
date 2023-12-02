@@ -1,11 +1,9 @@
 package com.example.boardgame;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +16,6 @@ import com.example.boardgame.Adapter.CategoryAdapter;
 import com.example.boardgame.Adapter.MeetingBoardAdapter;
 import com.example.boardgame.item.CategoryItem;
 import com.example.boardgame.item.MeetingBoardItem;
-import com.example.boardgame.utility.FragToActData;
 import com.example.boardgame.utility.JsonToData;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
