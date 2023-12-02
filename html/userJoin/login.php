@@ -41,6 +41,7 @@
 
             $payload = array(
                 "user_id" => $userId,
+                "seq" => $result["user_seq"],
                 "iat" => $issuedAt,
                 "exp" => $expirationTime // 시간 설정
             );
