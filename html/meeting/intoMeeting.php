@@ -16,8 +16,9 @@
     // 미팅의 고유 아이디
     $meeting_seq = $_GET['meetingId'];
 
-    // 쿼리문 작성
-    $stmt = $conn->prepare("INSERT INTO member_table(user_seq, meeting_seq, member_create_date)
+    // 쿼리문 작성 미팅의 가입한 유저의 리스트
+    $stmt = $conn->prepare("INSERT INTO member_table(user_seq, meeting_seq, 
+        member_create_date) 
         VALUES (:user_seq, :meeting_seq, NOW())");
 
     // 메게변수 바인딩
@@ -27,6 +28,7 @@
     // 쿼리 실행
     $stmt->execute();
 
+    // 미팅 테이블의 유저 인원수를 + 1 함
     $stmt1 = $conn->prepare("UPDATE meeting_table 
         SET meeting_current = meeting_current + 1
         WHERE meeting_seq = :meeting_seq");
@@ -34,6 +36,7 @@
     $stmt1->bindParam(':meeting_seq', $meeting_seq, PDO::PARAM_INT);
     $stmt1->execute();
 
+    // 유저 대기 테이블해서 해당 유저를 삭제
     $stmt2 = $conn->prepare("DELETE FROM member_wait 
         WHERE user_seq = :user_seq AND meeting_seq = :meeting_seq");
 
