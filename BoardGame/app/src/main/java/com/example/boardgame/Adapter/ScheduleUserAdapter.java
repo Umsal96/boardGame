@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.boardgame.R;
-import com.example.boardgame.item.ScheduleMemberItem;
 import com.example.boardgame.item.UserNItem;
 
 import java.util.ArrayList;

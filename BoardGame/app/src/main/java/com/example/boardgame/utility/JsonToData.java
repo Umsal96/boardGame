@@ -2,7 +2,14 @@ package com.example.boardgame.utility;
 
 import android.util.Pair;
 
+import com.example.boardgame.item.CafeGameItem;
+import com.example.boardgame.item.CafeGameListItem;
+import com.example.boardgame.item.CafeListItem;
+import com.example.boardgame.item.CafeReviewItem;
+import com.example.boardgame.item.CategoryItem;
+import com.example.boardgame.item.ChattingItem;
 import com.example.boardgame.item.CommentReplyItem;
+import com.example.boardgame.item.FoodItem;
 import com.example.boardgame.item.GameItem;
 import com.example.boardgame.item.GameReviewItem;
 import com.example.boardgame.item.MeetingBoardItem;
@@ -29,6 +36,183 @@ import java.util.Locale;
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
+
+    // 채팅 리스트 가져옴
+    public ArrayList<UserItem> jsonUserList(String json){
+
+        ArrayList<UserItem> Ui = new ArrayList<>();
+
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                UserItem ui = new UserItem();
+
+                String user_seq = jsonObject.getString("user_seq");
+                String user_nickname = jsonObject.getString("user_nickname");
+                String user_url = jsonObject.getString("user_url");
+
+                ui.setUserSeq(Integer.parseInt(user_seq));
+                ui.setUserNick(user_nickname);
+                ui.setUserUrl(user_url);
+
+                Ui.add(ui);
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return Ui;
+    }
+
+    public ArrayList<ChattingItem> jsonToChattingList(String json){
+        ArrayList<ChattingItem> chit = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                ChattingItem ci = new ChattingItem();
+                ci.setMessage_seq(Integer.parseInt(jsonObject.getString("message_seq")));
+                ci.setMeeting_seq(Integer.parseInt(jsonObject.getString("meeting_seq")));
+                ci.setUser_seq(Integer.parseInt(jsonObject.getString("user_seq")));
+                ci.setMessage_content(jsonObject.getString("message_content"));
+                ci.setMessage_read(Integer.parseInt(jsonObject.getString("message_read")));
+                ci.setMessage_date(jsonObject.getString("message_date"));
+                ci.setUser_nickname(jsonObject.getString("user_nickname"));
+                ci.setUser_url(jsonObject.getString("user_url"));
+                chit.add(ci);
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return chit;
+    }
+
+    // 카페 게임 정보 입력 리스트 가져오기
+    public ArrayList<CafeGameListItem> jsonToCafeGameList(String json){
+        ArrayList<CafeGameListItem> cgli = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                CafeGameListItem cai = new CafeGameListItem();
+                cai.setGame_seq(Integer.parseInt(jsonObject.getString("game_seq")));
+                cai.setGame_name(jsonObject.getString("game_name"));
+                cai.setImage_url(jsonObject.getString("image_url"));
+                cgli.add(cai);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return cgli;
+    }
+
+    // 카페 게임 정보 리스트 가져오기
+    public ArrayList<CafeGameItem> jsonToCafeGame(String json){
+        ArrayList<CafeGameItem> cgi = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                CafeGameItem ci = new CafeGameItem();
+                ci.setCafe_game_seq(Integer.parseInt(jsonObject.getString("cafe_game_seq")));
+                ci.setGame_seq(Integer.parseInt(jsonObject.getString("game_seq")));
+                ci.setCafe_seq(Integer.parseInt(jsonObject.getString("cafe_seq")));
+                ci.setGame_name(jsonObject.getString("game_name"));
+                ci.setImage_url(jsonObject.getString("image_url"));
+                cgi.add(ci);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return cgi;
+    }
+    // 음식 정보 리스트 가져오기
+    public ArrayList<FoodItem> jsonToFoodList(String json){
+        ArrayList<FoodItem> foi = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                FoodItem fi = new FoodItem();
+                fi.setFood_seq(Integer.parseInt(jsonObject.getString("food_seq")));
+                fi.setCafe_seq(Integer.parseInt(jsonObject.getString("cafe_seq")));
+                fi.setFood_name(jsonObject.getString("food_name"));
+                fi.setFood_price(Integer.parseInt(jsonObject.getString("food_price")));
+                fi.setImgUrl(jsonObject.getString("image_url"));
+                foi.add(fi);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+
+        return foi;
+    }
+
+    // 카페 리뷰 리스트
+    public ArrayList<CafeReviewItem> jsonToCafeReview(String json){
+        ArrayList<CafeReviewItem> cri = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                CafeReviewItem ci = new CafeReviewItem();
+                ci.setReview_seq(Integer.parseInt(jsonObject.getString("review_seq")));
+                ci.setUser_seq(Integer.parseInt(jsonObject.getString("user_seq")));
+                ci.setCafe_seq(Integer.parseInt(jsonObject.getString("cafe_seq")));
+                ci.setReview_content(jsonObject.getString("review_content"));
+                ci.setReview_grade(jsonObject.has("review_grade") && !jsonObject.isNull("review_grade") ? Float.parseFloat(jsonObject.getString("review_grade")) : 0.0f);
+                ci.setReview_type(Integer.parseInt(jsonObject.getString("review_type")));
+                ci.setReview_create_date(jsonObject.getString("review_create_date"));
+                ci.setUser_url(jsonObject.getString("user_url"));
+                ci.setUser_nickname(jsonObject.getString("user_nickname"));
+                ci.setTo_seqs(jsonObject.getString("to_seqs"));
+                ci.setImage_urls(jsonObject.getString("image_urls"));
+
+                cri.add(ci);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return cri;
+    }
+
+    // 카페 리스트
+    public ArrayList<CafeListItem> jsonToCafeList(String json){
+        ArrayList<CafeListItem> cli = new ArrayList<>();
+
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                CafeListItem ci = new CafeListItem();
+                ci.setCafe_seq(Integer.parseInt(jsonObject.getString("cafe_seq")));
+                ci.setCafe_name(jsonObject.getString("cafe_name"));
+                ci.setCafe_content(jsonObject.getString("cafe_content"));
+                ci.setCafe_create_date(jsonObject.getString("cafe_create_date"));
+                ci.setCafe_lat(jsonObject.getString("cafe_lat"));
+                ci.setCafe_lnt(jsonObject.getString("cafe_lnt"));
+                ci.setCafe_address(jsonObject.getString("cafe_address"));
+                ci.setImage_url(jsonObject.getString("image_url"));
+                ci.setImage_seq(jsonObject.has("image_seq") && !jsonObject.isNull("image_seq") ? Integer.parseInt(jsonObject.getString("image_seq")) : 0);
+                ci.setAverage_review_grade(jsonObject.has("average_review_grade") && !jsonObject.isNull("average_review_grade") ? Float.parseFloat(jsonObject.getString("average_review_grade")) : 0.0f);
+
+                cli.add(ci);
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return cli;
+    }
 
     // 보드게임 리뷰 리스트
     public ArrayList<GameReviewItem> jsonToGameReview(String json){

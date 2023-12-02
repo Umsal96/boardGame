@@ -34,7 +34,6 @@ import com.example.boardgame.item.UserNItem;
 import com.example.boardgame.item.WaitingItem;
 import com.example.boardgame.network.meeting.NetSchedule;
 import com.example.boardgame.service.socketService;
-import com.example.boardgame.socket.clientSocket;
 import com.example.boardgame.utility.FragToActData;
 import com.example.boardgame.utility.JsonToData;
 import com.example.boardgame.utility.OnItemClickListener;
@@ -258,7 +257,7 @@ public class getMeetingHome extends Fragment {
             public void onClick(View v) {
                 System.out.println("모임의 방징 고유 아이디 : " + LeaderSeq);
                 System.out.println("로그인 유저의 고유 아이디 : " + userId);
-                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem, getActivity(), userId);
+                WaitingDialog waitingDialog = new WaitingDialog(getContext(), waitingItem,  getActivity(), userId);
                 waitingDialog.show();
             }
         });

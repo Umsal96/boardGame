@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.boardgame.item.UserItem;
 import com.example.boardgame.item.WaitingItem;
 
 import java.util.ArrayList;

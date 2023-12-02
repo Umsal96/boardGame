@@ -16,6 +16,8 @@ public class main extends AppCompatActivity {
     private home home; // 메인 페이지
     private game game;// 게임 정보 페이지
 
+    private cafe cafe; // 카페 정보 페이지
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +29,7 @@ public class main extends AppCompatActivity {
         profile = new profile();
         home = new home();
         game = new game();
+        cafe = new cafe();
 
         Intent intent = getIntent();
         int chPage = intent.getIntExtra("where", 0); // 어디서 페이지가 이동해 왔는지 저장
@@ -43,6 +46,9 @@ public class main extends AppCompatActivity {
         }else if(chPage != 0 && chPage == 3){
             getSupportFragmentManager().beginTransaction().replace(R.id.container, game).commit();
             MainNavigationBarView.setSelectedItemId(R.id.boardGame);
+        }else if(chPage != 0 && chPage == 4){
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, cafe).commit();
+            MainNavigationBarView.setSelectedItemId(R.id.cafe);
         }
 
         // 메인 네비게시션 바를 클릭햇을때
@@ -64,6 +70,9 @@ public class main extends AppCompatActivity {
                         return true;
                     case R.id.boardGame:
                         getSupportFragmentManager().beginTransaction().replace(R.id.container, game).commit();
+                        return true;
+                    case R.id.cafe:
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, cafe).commit();
                         return true;
                 }
 

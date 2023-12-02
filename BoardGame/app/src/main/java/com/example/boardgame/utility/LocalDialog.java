@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import com.example.boardgame.R;
+import com.example.boardgame.inputCafe;
 import com.example.boardgame.inputMeeting;
 import com.example.boardgame.scheduleMeetingInput;
 import com.example.boardgame.updateMeeting;
@@ -60,6 +61,15 @@ public class LocalDialog extends Dialog {
                         intent.putExtra("x", x);
                         intent.putExtra("y", y);
                         intent.putExtra("maxNum", num);
+                        getContext().startActivity(intent);
+                        dismiss();
+                        activity.finish();
+                    } else if ("cafe".equals(where)) {
+                        Intent intent = new Intent(getContext(), inputCafe.class);
+                        intent.putExtra("cafeName", placeName);
+                        intent.putExtra("cafeAddress", roadAddressName);
+                        intent.putExtra("x", x);
+                        intent.putExtra("y", y);
                         getContext().startActivity(intent);
                         dismiss();
                         activity.finish();

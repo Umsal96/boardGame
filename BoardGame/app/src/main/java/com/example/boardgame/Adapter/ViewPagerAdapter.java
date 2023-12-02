@@ -17,7 +17,6 @@ import com.example.boardgame.R;
 import com.example.boardgame.item.ImageItem;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.Call;

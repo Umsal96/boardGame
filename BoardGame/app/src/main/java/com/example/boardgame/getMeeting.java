@@ -82,6 +82,7 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         getMeetingBoardList.setArguments(bundle);
 
         getMeetingCheat = new getMeetingCheat();
+        getMeetingCheat.setArguments(bundle);
 
         getMeetingName(id);
 

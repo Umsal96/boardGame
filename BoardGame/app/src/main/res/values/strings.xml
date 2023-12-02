@@ -17,6 +17,7 @@
     <!-- res/values/strings.xml -->
     <string name="channel_name">Alarm</string>
     <string name="channel_description">모임 가입 거절 승인</string>
+    <string name="msg_token_fmt">FCM Token: %s</string>
     <string-array name="boardType">
         <item>자유글</item>
         <item>모임후기</item>

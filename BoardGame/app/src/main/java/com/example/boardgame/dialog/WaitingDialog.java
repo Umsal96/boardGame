@@ -15,13 +15,9 @@ import com.example.boardgame.Adapter.WaitingAdapter;
 import com.example.boardgame.R;
 import com.example.boardgame.item.WaitingItem;
 import com.example.boardgame.service.socketService;
-import com.example.boardgame.socket.clientSocket;
 import com.example.boardgame.utility.JsonToData;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 
 import okhttp3.Call;
@@ -128,7 +124,6 @@ public class WaitingDialog extends Dialog {
 
     // 대기자를 거절했을때 실행되는 메소드
     private void refuseWaiting(int meetingSeq, int userSeq){
-
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/waiting/refuseWaiting.php").newBuilder();
         urlBuilder.addQueryParameter("userId", String.valueOf(userSeq)); // url 쿼리에 id 라는 메개변수 추가
         urlBuilder.addQueryParameter("meetingId", String.valueOf(meetingSeq)); // url 쿼리에 id 라는 메개변수 추가
@@ -179,7 +174,6 @@ public class WaitingDialog extends Dialog {
                 .build();
 
         OkHttpClient client = new OkHttpClient();
-
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {

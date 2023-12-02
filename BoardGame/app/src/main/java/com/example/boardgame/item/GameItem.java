@@ -1,7 +1,6 @@
 package com.example.boardgame.item;
 
 public class GameItem {
-
     private int game_seq;
     private String game_name;
     private String game_summary;
@@ -11,7 +10,6 @@ public class GameItem {
     private String game_create_data;
     private String image_url;
     private float average_review_grade;
-
     public float getAverage_review_grade() {
         return average_review_grade;
     }

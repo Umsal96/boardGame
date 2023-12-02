@@ -30,7 +30,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class game extends Fragment {
-
     private EditText searchBox; // 검색어 입력 칸
     private ImageButton searchButton; // 검색 버튼
     private RecyclerView gameRecyclerView; // 리스트를 보여주는 리사이클러뷰
