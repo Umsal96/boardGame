@@ -16,7 +16,8 @@
     user_info.user_nickname, user_info.user_url 
     FROM message_table
     JOIN user_info ON message_table.user_seq = user_info.user_seq
-    WHERE message_table.meeting_seq = :meeting_seq");
+    WHERE message_table.meeting_seq = :meeting_seq
+    ORDER BY message_table.message_seq ASC;");
 
     // 쿼리에 바인딩
     $stmt->bindParam(':meeting_seq', $meetingId, PDO::PARAM_INT);
