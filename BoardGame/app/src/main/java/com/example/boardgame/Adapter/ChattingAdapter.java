@@ -12,7 +12,11 @@ import com.bumptech.glide.Glide;
 import com.example.boardgame.R;
 import com.example.boardgame.item.ChattingItem;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -23,10 +27,10 @@ public class ChattingAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHold
     public int getItemViewType(int position){
         int userSeq = chattingItems.get(position).getUser_seq();
         if(userSeq == userId){ // 내가 한 채팅일 경우
-            System.out.println("내가 한 채팅이 맞음");
+
             return 0;
         } else { // 내가 한 채팅이 아닐경우
-            System.out.println("내가 한 채팅이 아님");
+
             return 1;
         }
     }
@@ -57,6 +61,8 @@ public class ChattingAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHold
             otherChatCheckRead = itemView.findViewById(R.id.otherChatCheckRead);
             otherChatDate = itemView.findViewById(R.id.otherChatDate);
             otherNick = itemView.findViewById(R.id.otherNick);
+
+
         }
     }
 
@@ -82,23 +88,45 @@ public class ChattingAdapter extends  RecyclerView.Adapter<RecyclerView.ViewHold
         ChattingItem item = chattingItems.get(position);
         if(holder instanceof ViewHolderMyChat){ // 내 채팅일 경우
             ViewHolderMyChat viewHolderMyChat = (ViewHolderMyChat) holder;
-            viewHolderMyChat.myChatDate.setText(item.getMessage_date());
+
+            viewHolderMyChat.myChatDate.setText(getCurrentTime(item.getMessage_date()));
+
             viewHolderMyChat.myChatContent.setText(item.getMessage_content());
             viewHolderMyChat.myChatCheckRead.setText(Integer.toString(item.getMessage_read()));
         } else if (holder instanceof ViewHolderOtherChat) {
             ViewHolderOtherChat viewHolderOtherChat = (ViewHolderOtherChat) holder;
             viewHolderOtherChat.otherNick.setText(item.getUser_nickname());
-            viewHolderOtherChat.otherChatDate.setText(item.getMessage_date());
+
+            viewHolderOtherChat.otherChatDate.setText(getCurrentTime(item.getMessage_date()));
+
             viewHolderOtherChat.otherChatContent.setText(item.getMessage_content());
             viewHolderOtherChat.otherChatCheckRead.setText(Integer.toString(item.getMessage_read()));
             if (item.getUser_url() != null && !item.getUser_url().equals("null") && !item.getUser_url().equals("")) {
                 Glide.with(holder.itemView.getContext()).load("http://3.38.213.196" + item.getUser_url()).into(viewHolderOtherChat.userUrl);
             } else {
-                viewHolderOtherChat.userUrl.setImageResource(R.drawable.img);
+                viewHolderOtherChat.userUrl.setImageResource(R.drawable.img2);
             }
         }
     }
 
+    private String getCurrentTime(String inputDateString){
+        // 입력 날짜 형식
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        // 주어진 날짜 문자열
+        SimpleDateFormat outFormat = new SimpleDateFormat("a hh:mm", Locale.getDefault()); // 오전 또는 오후 시:분
+
+        try{
+            // 현재 시간을 가져옴
+            Date date = inputFormat.parse(inputDateString);
+
+            // 병견된 형식으로 포맷팅
+            String outDateString = outFormat.format(date);
+            return outDateString;
+        }catch (ParseException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     @Override
     public int getItemCount(){
         if(chattingItems == null){

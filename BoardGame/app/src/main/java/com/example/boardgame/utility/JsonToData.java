@@ -36,8 +36,6 @@ import java.util.Locale;
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
-
-    // 채팅 리스트 가져옴
     public ArrayList<UserItem> jsonUserList(String json){
 
         ArrayList<UserItem> Ui = new ArrayList<>();
@@ -66,7 +64,7 @@ public class JsonToData {
 
         return Ui;
     }
-
+    // 채팅 리스트 가져옴
     public ArrayList<ChattingItem> jsonToChattingList(String json){
         ArrayList<ChattingItem> chit = new ArrayList<>();
         try{

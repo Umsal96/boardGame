@@ -197,7 +197,7 @@ public class socketService extends Service {
 
         Intent resultIntent = new Intent(this, getMeeting.class);
         resultIntent.putExtra("id", meetingId);
-        resultIntent.putExtra("chPage", 1);
+        resultIntent.putExtra("where", 1);
         if("가입".equals(result)){
             resultIntent.putExtra("sk", 1); // 1 이면 소켓에서 전송한 것 으로 가입한 유저의 리스트 다이얼로그를 보여주게 함
         } else {
