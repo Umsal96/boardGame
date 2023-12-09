@@ -95,6 +95,9 @@ public class getMeeting extends AppCompatActivity implements FragToActData {
         if(chPage != 0 && chPage == 2){ // 인텐트에 들어있던 where 의 value를 확인해서 만약 0이 아니고 2이면 getMeetingBoard를 프레그먼트에 표시
             getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingBoardList).commit();
             MainNavigationBarView.setSelectedItemId(R.id.board);
+        }else if(chPage != 0 && chPage == 3){// 인텐트에 들어있던 where 의 value를 확인해서 만약 0이 아니고 3이면 getMeetingCheat를 프레그먼트에 표시
+            getSupportFragmentManager().beginTransaction().replace(R.id.meetingContainer, getMeetingCheat).commit();
+            MainNavigationBarView.setSelectedItemId(R.id.cheat);
         }
 
         // ... 버튼을 클릭했을때 실행되는 이벤트

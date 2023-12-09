@@ -5,11 +5,27 @@ import com.example.boardgame.item.GameReviewItem;
 import com.example.boardgame.item.GetGameItem;
 import com.example.boardgame.item.MeetingBoardDetailItem;
 import com.example.boardgame.item.GetCafeItem;
+import com.example.boardgame.item.UserItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class JsonToGetData {
+
+    public UserItem jsonGetUserInfo(String json){
+        try{
+            JSONObject jsonObject = new JSONObject(json);
+            UserItem userItem = new UserItem();
+
+            userItem.setUserSeq(Integer.parseInt(jsonObject.getString("user_seq")));
+            userItem.setUserNick(jsonObject.getString("user_nickname"));
+            userItem.setUserUrl(jsonObject.getString("user_url"));
+
+            return userItem;
+        }catch (JSONException e){
+            return null;
+        }
+    }
 
     // 카페 정보 가져오기
     public GetCafeItem jsonGetToGetCafe(String json){

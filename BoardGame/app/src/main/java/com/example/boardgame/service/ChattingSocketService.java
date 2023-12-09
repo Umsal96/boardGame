@@ -1,17 +1,35 @@
 package com.example.boardgame.service;
 
+import android.app.NotificationChannel;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.example.boardgame.R;
+import com.example.boardgame.getMeeting;
+import com.example.boardgame.item.UserItem;
+import com.example.boardgame.utility.ChattingNotificationChannelManager;
+import com.example.boardgame.utility.JsonToGetData;
 import com.example.boardgame.vo.FirstSocket;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,14 +55,16 @@ public class ChattingSocketService extends Service {
     Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
-
-    private boolean sendCheck = false; // 처음 보내는 정보가 보내졌는지 확인
+    String CHANNEL_ID = "1002";
+    int meetingId = 0;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         // 데이터 수신을 위한 별로듸 스레드 생성
         if(intent != null){
             String json = intent.getStringExtra("json");
             System.out.println("service json: " + json);
+            meetingId = intent.getIntExtra("meetingId", 0);
+//            System.out.println("서비스 위치 정보 : " + meetingId);
 //            getMeetingList(userId);
 
             if(socket == null || !socket.isConnected()){
@@ -70,6 +90,11 @@ public class ChattingSocketService extends Service {
                 });
                 connectionThread.start();
             }
+//            int meetingId = intent.getIntExtra("meetingId", 0);
+//
+//            if(meetingId != 0){
+//                System.out.println("서비스 위치 정보 : " + meetingId);
+//            }
 
             String actionJson = intent.getStringExtra("actionJson");
             System.out.println("service actionJson : " + actionJson);
@@ -128,6 +153,13 @@ public class ChattingSocketService extends Service {
                         Intent intent = new Intent("com.example.boardgame.ACTION_DATA_RECEIVED");
                         intent.putExtra("receivedData", actionJson);
                         LocalBroadcastManager.getInstance(ChattingSocketService.this).sendBroadcast(intent);
+                        JsonObject jsonObject = JsonParser.parseString(actionJson).getAsJsonObject();
+                        int userSeq = jsonObject.get("userSeq").getAsInt();
+                        int meetingSeq = jsonObject.get("meetingSeq").getAsInt();
+                        String content = jsonObject.get("content").getAsString();
+
+
+                        getOtherUserInfo(userSeq, meetingSeq, content);
                     }
                     System.out.println("Socket disconnected. Stopping data receiving thread.");
                 } catch (IOException e){
@@ -136,6 +168,110 @@ public class ChattingSocketService extends Service {
             }
         });
         receiveThread.start();
+    }
+
+    // 노티피케이션에 들어갈 유저 정보를 가져옴
+    private void getOtherUserInfo(int userId, int meetingSeq, String content) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/chat/getUser.php").newBuilder();
+        urlBuilder.addQueryParameter("userId", String.valueOf(userId)); // url 쿼리에 id 라는 메개변수 추가
+        String url = urlBuilder.build().toString();
+        JsonToGetData jtg = new JsonToGetData();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    System.out.println(responseData);
+
+                    UserItem item = jtg.jsonGetUserInfo(responseData);
+//                    System.out.println("유저정보를 가져온 서비스 정보 : " + meetingId);
+                    System.out.println("서비스 위치 정보 startData : " + meetingId);
+                    // meetingSeq -> json 데이터에서 받아온 meetingId
+                    // meetingId -> 현재 위치
+                    if(meetingSeq != meetingId){
+                        viewNotify(meetingSeq, content, item);
+                    }
+
+                }
+
+            }
+        });
+    }
+
+    // 노티피 케이션 표시
+    private void viewNotify(int meetingId, String message, UserItem item) {
+        ChattingNotificationChannelManager channelManager = ChattingNotificationChannelManager.getInstance(this);
+        NotificationChannel channel = channelManager.getChannel();
+
+        Intent resultIntent = new Intent(this, getMeeting.class);
+        resultIntent.putExtra("id", meetingId);
+        resultIntent.putExtra("where", 3);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivities(this, 0,
+                new Intent[]{resultIntent}, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(item.getUserNick())
+                .setContentText(message)
+                .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(resultPendingIntent);
+
+        // 프로필 사진이 설정 되어 있을 경우
+        if (item.getUserUrl() != null && !item.getUserUrl().equals("null") && !item.getUserUrl().equals("")) {
+            Glide.with(this)
+                    .asBitmap()
+                    .load("http://3.38.213.196" + item.getUserUrl())
+                    .into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            // 노티피케이션에 프로필 이미지 추가
+                            builder.setLargeIcon(resource);
+
+                            // 알람 표시
+                            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(ChattingSocketService.this);
+                            if (ActivityCompat.checkSelfPermission(ChattingSocketService.this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                // TODO: Consider calling
+                                //    ActivityCompat#requestPermissions
+                                // here to request the missing permissions, and then overriding
+                                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                //                                          int[] grantResults)
+                                // to handle the case where the user grants the permission. See the documentation
+                                // for ActivityCompat#requestPermissions for more details.
+                                return;
+                            }
+                            notificationManagerCompat.notify(1002, builder.build());
+                        }
+                    });
+        } else { // 프로필 사진이 설정 되어있지 않을 경우
+            Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.img2);
+            builder.setLargeIcon(defaultBitmap);
+
+            // 알림을 표시
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            notificationManagerCompat.notify(1002, builder.build());
+        }
     }
 
     @Nullable
