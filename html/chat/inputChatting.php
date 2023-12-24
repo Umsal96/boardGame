@@ -30,7 +30,8 @@
     $stmt->bindParam(':message_date', $message_date, PDO::PARAM_STR);
 
     if($stmt->execute()){
-        echo '저장왼료';
+        $lastMeetingSeq = $conn->lastInsertId();
+        echo $lastMeetingSeq;
     } else{
         echo '저장실패';
     }
