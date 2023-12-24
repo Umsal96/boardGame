@@ -1,5 +1,7 @@
 package com.example.boardgame.item;
 
+import java.util.List;
+
 public class ChattingItem {
     private int message_seq;
     private int meeting_seq;
@@ -10,6 +12,14 @@ public class ChattingItem {
     private String user_nickname;
     private String user_url;
 
+    private List<Integer> readUserId;
+
+    public void readChatting(int userId){
+        readUserId.add(userId);
+    }
+    public int returnReadSize(){
+        return readUserId.size();
+    }
     public int getMessage_seq() {
         return message_seq;
     }

@@ -14,6 +14,7 @@ import com.example.boardgame.item.GameItem;
 import com.example.boardgame.item.GameReviewItem;
 import com.example.boardgame.item.MeetingBoardItem;
 import com.example.boardgame.item.MeetingItem;
+import com.example.boardgame.item.ReadItem;
 import com.example.boardgame.item.ScheduleItem;
 import com.example.boardgame.item.ScheduleMemberItem;
 import com.example.boardgame.item.UserItem;
@@ -35,6 +36,30 @@ import java.util.Locale;
 
 public class JsonToData {
     int num; // jsonToMeeting에서 사용함
+    // 채팅을 현재 누구까지 읽었는지 정보를 json 형태에서 ArrayList에 넣기 위한 메소드
+    public ArrayList<ReadItem> jsonToReadList(String json){
+        ArrayList<ReadItem> Ri = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(json);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                ReadItem ri = new ReadItem();
+
+                ri.setRead_seq(Integer.parseInt(jsonObject.getString("read_seq")));
+                ri.setUser_seq(Integer.parseInt(jsonObject.getString("user_seq")));
+                ri.setMeeting_seq(Integer.parseInt(jsonObject.getString("meeting_seq")));
+                ri.setRead_time(jsonObject.getString("read_time"));
+                ri.setChat_seq(Integer.parseInt(jsonObject.getString("chat_seq")));
+
+                Ri.add(ri);
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+            return null;
+        }
+        return Ri;
+    }
+
     // 일정에 참가한 유저의 닉네임 과 프로필을 을 가저온 json 을 ArrayList에 넣기위한 메소드
     public ArrayList<UserItem> jsonUserList(String json){
 

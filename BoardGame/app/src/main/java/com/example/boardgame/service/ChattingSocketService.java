@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
@@ -33,12 +34,14 @@ import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,13 +60,16 @@ public class ChattingSocketService extends Service {
     private DataOutputStream dos;
     String CHANNEL_ID = "1002";
     int meetingId = 0;
+    Bitmap bitmap;
+    public static ArrayList<Integer> enterUser = new ArrayList<>();
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         // 데이터 수신을 위한 별로듸 스레드 생성
         if(intent != null){
+            // 로그인 정보와 가입된 모임들 리스트를 json 형태로 가공된 정보를 받아온것
             String json = intent.getStringExtra("json");
             System.out.println("service json: " + json);
-            meetingId = intent.getIntExtra("meetingId", 0);
+
 //            System.out.println("서비스 위치 정보 : " + meetingId);
 //            getMeetingList(userId);
 
@@ -74,7 +80,7 @@ public class ChattingSocketService extends Service {
                     public void run() {
                         try{
                             socket = new Socket();
-                            socket.connect(new InetSocketAddress("3.38.213.196", 9998)); // 서버 IP 주소로 변경
+                            socket.connect(new InetSocketAddress("192.168.219.106", 9998)); // 서버 IP 주소로 변경
                             dos = new DataOutputStream(socket.getOutputStream());
                             dis = new DataInputStream(socket.getInputStream());
                             System.out.println("통신 시작");
@@ -98,6 +104,20 @@ public class ChattingSocketService extends Service {
 
             String actionJson = intent.getStringExtra("actionJson");
             System.out.println("service actionJson : " + actionJson);
+            // 채팅방에 입장했다는 것을 json 형태로 가공해서 받아온것
+            String jsonEnter = intent.getStringExtra("jsonEnter");
+            if(jsonEnter != null){
+                System.out.println("jsonEnter : " + jsonEnter);
+                JsonObject jsonObject = JsonParser.parseString(jsonEnter).getAsJsonObject();
+                String action = jsonObject.get("action").getAsString();
+                if("enter".equals(action)){
+                    meetingId = jsonObject.get("meetingSeq").getAsInt();
+                    sendEnter(jsonEnter);
+                } else if ("out".equals(action)) {
+                    meetingId = jsonObject.get("meetingId").getAsInt();
+                    sendEnter(jsonEnter);
+                }
+            }
 
             if(actionJson != null){
                 sendAction(actionJson);
@@ -108,6 +128,23 @@ public class ChattingSocketService extends Service {
         }
         return START_NOT_STICKY;
     }
+    // 채팅방에 입장했을때 소켓통신에 전송
+    private void sendEnter(String json){
+        System.out.println("sendEnter 실행");
+        Thread enterThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    dos.writeUTF(json);
+                    dos.flush();
+                } catch (IOException e){
+                    e.printStackTrace();;
+                }
+            }
+        });
+        enterThread.start();
+    }
+
     // 메시지 전송 버튼을 눌렀을때, 모임에 가입했을때 모임에서 탈퇴했을때 실행
     private void sendAction(String json){
         System.out.println("sendAction 실행");
@@ -150,16 +187,30 @@ public class ChattingSocketService extends Service {
                         System.out.println("데이터 받기 시작");
                         String actionJson = dis.readUTF();
                         System.out.println("chattingSocketService + 받은 데이터 : " + actionJson);
+                        JsonObject jsonObject = JsonParser.parseString(actionJson).getAsJsonObject();
                         Intent intent = new Intent("com.example.boardgame.ACTION_DATA_RECEIVED");
                         intent.putExtra("receivedData", actionJson);
                         LocalBroadcastManager.getInstance(ChattingSocketService.this).sendBroadcast(intent);
-                        JsonObject jsonObject = JsonParser.parseString(actionJson).getAsJsonObject();
-                        int userSeq = jsonObject.get("userSeq").getAsInt();
-                        int meetingSeq = jsonObject.get("meetingSeq").getAsInt();
-                        String content = jsonObject.get("content").getAsString();
+                        String action = jsonObject.get("action").getAsString();
+                        if("chat".equals(action)){
+                            int userSeq = jsonObject.get("userSeq").getAsInt();
+                            int meetingSeq = jsonObject.get("meetingSeq").getAsInt();
+                            String content = jsonObject.get("content").getAsString();
+                            getOtherUserInfo(userSeq, meetingSeq, content);
+                        } else if ("enter".equals(action)) {
+//                            System.out.println("action enter");
+                            int userSeq = jsonObject.get("userSeq").getAsInt();
+                            enterUser.add(userSeq);
+                        } else if ("out".equals(action)) {
+                            int userSeq = jsonObject.get("userSeq").getAsInt();
+                            for (int i = 0; i < enterUser.size(); i++) {
+                                if(enterUser.get(i) == userSeq){
+                                    enterUser.remove(i);
+                                    break;
+                                }
+                            }
+                        }
 
-
-                        getOtherUserInfo(userSeq, meetingSeq, content);
                     }
                     System.out.println("Socket disconnected. Stopping data receiving thread.");
                 } catch (IOException e){
@@ -199,11 +250,10 @@ public class ChattingSocketService extends Service {
                     // meetingSeq -> json 데이터에서 받아온 meetingId
                     // meetingId -> 현재 위치
                     if(meetingSeq != meetingId){
+                        System.out.println("노티피케이션 실행");
                         viewNotify(meetingSeq, content, item);
                     }
-
                 }
-
             }
         });
     }
