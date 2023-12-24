@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_gravity="left"
     android:background="@color/chattingRoomBack"
+    android:layout_gravity="left"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -19,40 +19,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/otherChatContent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:background="@drawable/border_layout_chat"
-        android:backgroundTint="@color/myChatColor"
-        android:text="채팅 내용"
-        android:textSize="23dp"
-        app:layout_constraintStart_toEndOf="@+id/userUrl"
-        app:layout_constraintTop_toBottomOf="@+id/otherNick" />
-
-    <TextView
-        android:id="@+id/otherChatDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="40dp"
-        android:text="날짜"
-        android:textColor="@color/gray"
-        app:layout_constraintStart_toEndOf="@+id/otherChatContent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/otherChatCheckRead"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="24dp"
-        android:text="1"
-        android:textColor="@color/myChatColor"
-        app:layout_constraintStart_toEndOf="@+id/otherChatContent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/otherNick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,5 +29,37 @@
         android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/userUrl"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/otherChatImg"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toEndOf="@+id/userUrl"
+        app:layout_constraintTop_toBottomOf="@+id/otherNick"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/otherChatDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="1dp"
+        android:text="날짜"
+        android:textColor="@color/gray"
+        app:layout_constraintStart_toEndOf="@+id/otherChatImg"
+        app:layout_constraintTop_toBottomOf="@+id/otherChatCheckRead" />
+
+    <TextView
+        android:id="@+id/otherChatCheckRead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="20dp"
+        android:text="1"
+        android:textColor="@color/myChatColor"
+        app:layout_constraintBottom_toBottomOf="@+id/otherChatImg"
+        app:layout_constraintStart_toEndOf="@+id/otherChatImg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

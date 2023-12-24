@@ -21,17 +21,27 @@
             android:id="@+id/chatRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1">
+
+        </androidx.recyclerview.widget.RecyclerView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/moreImg"
+                android:layout_width="42dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:background="#00000000"
+                android:src="@drawable/add_24px" />
+
             <EditText
                 android:id="@+id/chatText"
-                android:layout_width="365dp"
-                android:layout_height="wrap_content"
+                android:layout_width="301dp"
+                android:layout_height="51dp"
                 android:layout_weight="1"
                 android:background="@drawable/border_layout_normal"
                 android:backgroundTint="@color/lightGray"
@@ -48,5 +58,31 @@
                 android:backgroundTint="@color/skyBlue"
                 android:text="전송" />
         </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/imgLayout"
+            android:layout_width="match_parent"
+            android:layout_height="145dp"
+            android:background="@color/white"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/cameraImg"
+                android:layout_width="150dp"
+                android:layout_height="145dp"
+                android:layout_marginStart="45dp"
+                android:src="@drawable/photo_camera_24px"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/galleryImg"
+                android:layout_width="150dp"
+                android:layout_height="145dp"
+                android:layout_marginEnd="45dp"
+                android:src="@drawable/image_24px"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

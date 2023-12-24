@@ -139,6 +139,7 @@ public class getMeetingBoard extends AppCompatActivity {
                 intent1.putExtra("id", meetingId);
                 intent1.putExtra("where", 2);
                 startActivity(intent1);
+                finish();
             }
         });
 

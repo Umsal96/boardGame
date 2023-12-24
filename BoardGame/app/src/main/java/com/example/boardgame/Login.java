@@ -72,11 +72,15 @@ public class Login extends AppCompatActivity {
     String pass; // 로그인 할때의 비밀번호를 저장하는 변수
 
     String token;
+
+    // SharedPreferences에서 저장된 토큰을 가져옴
+    // 이 코드는 "UserData"라는 이름의 SharedPreferences 객체를 MODE_PRIVATE 모드로 생성합니다.
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        final String[] fcmToken = new String[1];
         // ui 연결
         join = findViewById(R.id.join); // 회원가입 버튼
         login = findViewById(R.id.login); // 로그인 버튼
@@ -84,7 +88,11 @@ public class Login extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword); // 비밀번호 입력 칸
         findId = findViewById(R.id.findId); // 아이디 찾기 페이지로 이동하는 버튼
         findPassword = findViewById(R.id.findPassword); // 비밀번호 찾기 페이지로 이동하는 버튼
-        FirebaseApp.initializeApp(this);
+        sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
+        // Firebase 초기화 확인
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(this);
+        }
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
@@ -96,62 +104,19 @@ public class Login extends AppCompatActivity {
 
                         // Get new FCM registration token
                         token = task.getResult();
+                        fcmToken[0] = token;
+                        System.out.println(fcmToken[0]);
                         System.out.println("토큰 입니다: "+ token);
                         // Log and toast
                         String msg = getString(R.string.msg_token_fmt, token);
                         Log.d(TAG, msg);
 //                        Toast.makeText(Login.this, msg, Toast.LENGTH_SHORT).show();
-
+//                      로그인 엑티비티에 들어왓을때 처음 실행되는 코드
+                        start();
                     }
                 });
-
-        // SharedPreferences에서 저장된 토큰을 가져옴
-        // 이 코드는 "UserData"라는 이름의 SharedPreferences 객체를 MODE_PRIVATE 모드로 생성합니다.
-        SharedPreferences sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
-        // 쉐어드 프리퍼런스에서 token 이라는 키값을 가진 벨류값을 가져옴
-        String saveToken = sharedPreferences.getString("token", "");
-        String userIdString = sharedPreferences.getString("userId", null);
-
-        int userId = -1; // Default value in case parsing fails
-
-        if (userIdString != null && !userIdString.isEmpty()) {
-            try {
-                userId = Integer.parseInt(userIdString);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-            }
-        }
-
-        checkNotificationPermission(Login.this);
-
-        if (userIdString != null) {
-            // 유저가 가입한 모임 내역 가져옴
-            System.out.println("Login 서비스 시작 ");
-            getMeetingList(userIdString, token);
-        }
-
-        // 서비스 시작
-//        Intent serviceIntent = new Intent(this, socketService.class);
-//        serviceIntent.putExtra("user_id", userId);
-//        startService(serviceIntent);
-
-        // 토큰 검사 및 자동 로그인 처리
-        // saveToken에 값이 저장되어있는지 확인
-        if(!saveToken.isEmpty()){
-            if(isTokenValid(saveToken)){ // 가져온 토큰이 유효한 값인지 확인 시간도 확인
-                // 토큰이 유효하면 자동 로그인
-                // 자동로그인이 되면 main 페이지로 이동한다고 인텐트에 저장
-                Intent intent = new Intent(Login.this, main.class);
-                startActivity(intent); // 인텐트를 실행
-                showToastMessage("자동 로그인"); // 토스트 에 자동로그인이 나오도록 설정
-                finish(); // 생명주기를 끝냄
-            }
-
-//            String jwtContent = JwtDecoder.getUserIdFromToken(saveToken);
-
-//            System.out.println("토큰 내용: " + jwtContent);
-        }
-
+        // 자동 로그인
+        autoLogin();
         // 회원가입 버튼을 눌렀을때 약관 페이지로 이동
         join.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,6 +159,59 @@ public class Login extends AppCompatActivity {
         });
 
     } // end onCreate
+    // 로그인 엑티비티에 들어왓을때 처음 실행되는 코드
+    private void start(){
+
+        // 쉐어드 프리퍼런스에서 token 이라는 키값을 가진 벨류값을 가져옴
+
+        String userIdString = sharedPreferences.getString("userId", null);
+
+        int userId = -1; // Default value in case parsing fails
+
+        if (userIdString != null && !userIdString.isEmpty()) {
+            try {
+                userId = Integer.parseInt(userIdString);
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+        checkNotificationPermission(Login.this);
+
+        if (userIdString != null) {
+            // 유저가 가입한 모임 내역 가져옴
+            System.out.println("Login 서비스 시작 ");
+
+            System.out.println("Login 서비스 fcm token : " + token);
+
+            getMeetingList(userIdString, token);
+        }
+
+        // 서비스 시작
+//        Intent serviceIntent = new Intent(this, socketService.class);
+//        serviceIntent.putExtra("user_id", userId);
+//        startService(serviceIntent);
+    }
+    // 자동 로그인
+    private void autoLogin(){
+        String saveToken = sharedPreferences.getString("token", "");
+        // 토큰 검사 및 자동 로그인 처리
+        // saveToken에 값이 저장되어있는지 확인
+        if(!saveToken.isEmpty()){
+            if(isTokenValid(saveToken)){ // 가져온 토큰이 유효한 값인지 확인 시간도 확인
+                // 토큰이 유효하면 자동 로그인
+                // 자동로그인이 되면 main 페이지로 이동한다고 인텐트에 저장
+                Intent intent = new Intent(Login.this, main.class);
+                startActivity(intent); // 인텐트를 실행
+                showToastMessage("자동 로그인"); // 토스트 에 자동로그인이 나오도록 설정
+                finish(); // 생명주기를 끝냄
+            }
+
+//            String jwtContent = JwtDecoder.getUserIdFromToken(saveToken);
+
+//            System.out.println("토큰 내용: " + jwtContent);
+        }
+    }
     // 유저가 가입한 모임 내역 가져옴
     public void getMeetingList(String userId, String jsonToken){
         HttpUrl.Builder urlBuilder = HttpUrl.parse("http://3.38.213.196/meeting/getMeetingUserList.php").newBuilder();
@@ -230,6 +248,7 @@ public class Login extends AppCompatActivity {
                                 if(firstSocket.getChatSeqs() == null){
                                     System.out.println("null 입니다.");
                                 }else{
+                                    System.out.println("fcm token : " + jsonToken);
                                     System.out.println(firstSocket.getChatSeqs().toString());
                                     Gson gson = new Gson();
                                     Map<String, Object> map = new HashMap<>();
@@ -237,7 +256,7 @@ public class Login extends AppCompatActivity {
                                     map.put("chatSeqs", firstSocket.getChatSeqs());
                                     map.put("token", jsonToken);
                                     String json = gson.toJson(map);
-//                                    System.out.println("json: " + json);
+                                    System.out.println("info json: " + json);
 
                                     Intent chatServiceIntent = new Intent(Login.this, ChattingSocketService.class);
                                     chatServiceIntent.putExtra("json", json);
