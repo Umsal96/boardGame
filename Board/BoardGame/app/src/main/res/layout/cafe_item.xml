@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="7dp">
+
+    <ImageView
+        android:id="@+id/cafeImage"
+        tools:srcCompat="@tools:sample/avatars"
+        android:layout_width="82dp"
+        android:layout_height="78dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="3dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/cafeName"
+        android:layout_width="250dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="8dp"
+        android:text="카페 이름"
+        app:layout_constraintStart_toEndOf="@+id/cafeImage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/cafeSummary"
+        android:layout_width="250dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="3dp"
+        android:text="간단한 설명"
+        app:layout_constraintStart_toEndOf="@+id/cafeImage"
+        app:layout_constraintTop_toBottomOf="@+id/cafeName" />
+
+    <RatingBar
+        android:id="@+id/cafeRatingBar"
+        style="@android:style/Widget.DeviceDefault.Light.RatingBar.Indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="3dp"
+        android:isIndicator="true"
+        android:numStars="5"
+        app:layout_constraintStart_toEndOf="@+id/cafeImage"
+        app:layout_constraintTop_toBottomOf="@+id/cafeSummary" />
+
+    <TextView
+        android:id="@+id/cafeArg"
+        android:layout_width="83dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="0.0"
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/cafeRatingBar"
+        app:layout_constraintTop_toBottomOf="@+id/cafeSummary" />
+
+    <TextView
+        android:id="@+id/cafeAddress"
+        android:layout_width="250dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="110dp"
+        android:layout_marginTop="4dp"
+        android:hint="카페 주소"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cafeRatingBar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

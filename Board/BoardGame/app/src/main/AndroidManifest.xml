@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- 인터넷 권한 설정 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 인터넷 연결 확인 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.example.boardgame.permission.DATA_BROADCAST" />
+
+    <application
+        android:name=".myApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/img2"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.BoardGame"
+        tools:targetApi="31">
+        <activity android:name=".getUpdateCafeReview"
+            android:exported="false" />
+        <activity
+            android:name=".inputPay"
+            android:exported="false" />
+        <activity
+            android:name=".inputGameDialog"
+            android:exported="false" />
+        <activity
+            android:name=".inputFood"
+            android:exported="false" />
+        <activity
+            android:name=".inputCafeReview"
+            android:exported="false" />
+        <activity
+            android:name=".getCafe"
+            android:exported="false" />
+        <activity
+            android:name=".inputCafe"
+            android:exported="false" />
+        <activity
+            android:name=".updateGameReview"
+            android:exported="false" />
+        <activity
+            android:name=".inputGameReview"
+            android:exported="false" />
+        <activity
+            android:name=".getGame"
+            android:exported="false" />
+        <activity
+            android:name=".inputBoardGame"
+            android:exported="false" />
+        <activity
+            android:name=".getMeetingBoardModify"
+            android:exported="false" />
+        <activity
+            android:name=".getMeetingReply"
+            android:exported="false" />
+        <activity
+            android:name=".getMeetingBoard"
+            android:exported="false" />
+        <activity
+            android:name=".inputMeetingBoard"
+            android:exported="false" />
+        <activity
+            android:name=".getMeeting"
+            android:exported="false" />
+        <activity
+            android:name=".scheduleMeetingInput"
+            android:exported="false" />
+        <activity
+            android:name=".updateMeeting"
+            android:exported="false" />
+        <activity
+            android:name=".kakaoMap"
+            android:exported="false" />
+        <activity
+            android:name=".inputMeeting"
+            android:exported="false" />
+        <activity
+            android:name=".profileModify"
+            android:exported="false" />
+        <activity
+            android:name=".findPwAuth"
+            android:exported="false" />
+        <activity
+            android:name=".findPw"
+            android:exported="false" />
+        <activity
+            android:name=".findId"
+            android:exported="false" />
+        <activity
+            android:name=".findIdAuth"
+            android:exported="false" />
+        <activity
+            android:name=".EmailAuth"
+            android:exported="false"
+            android:label="@string/title_activity_email_auth"
+            android:theme="@style/Theme.BoardGame.NoActionBar" />
+        <activity
+            android:name=".main"
+            android:exported="false" />
+        <activity
+            android:name=".ViewTerms"
+            android:exported="false" />
+        <activity
+            android:name=".SMSAuth"
+            android:exported="false" />
+        <activity
+            android:name=".UserLogin"
+            android:exported="false" />
+        <activity
+            android:name=".Login"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".service.ChattingSocketService"
+            android:enabled="true"
+            android:exported="false"/>
+        <service
+            android:name=".service.TestService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".service.socketService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.boardgame.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <meta-data
+            android:name="com.naver.maps.map.CLIENT_ID"
+            android:value="2qb0xal96h" />
+    </application>
+
+</manifest>
