@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".getMeetingBoardModify">
+
+    <ImageButton
+        android:id="@+id/backPage"
+        android:layout_width="46dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="2dp"
+        android:background="#00000000"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/arrow_back_24px" />
+
+    <TextView
+        android:id="@+id/meetingTitle"
+        android:layout_width="246dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="2dp"
+        android:text="모임 이름"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/backPage"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/inputButton"
+        android:layout_width="57dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="5dp"
+        android:text="수정"
+        android:textSize="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/boardTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="14dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="제목"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backPage" />
+
+    <EditText
+        android:id="@+id/boardContent"
+        android:layout_width="364dp"
+        android:layout_height="237dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="6dp"
+        android:ems="10"
+        android:gravity="left|top"
+        android:hint="내용"
+        android:inputType="textMultiLine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/boardTitle" />
+
+    <TextView
+        android:id="@+id/boardType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="43dp"
+        android:text="글 종류"
+        android:textColor="@color/skyBlue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inputButton" />
+
+    <Button
+        android:id="@+id/inputImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="283dp"
+        android:text="이미지 업로드"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/boardContent" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/imageViewPager"
+        android:layout_width="260dp"
+        android:layout_height="253dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inputImage" />
+
+    <TextView
+        android:id="@+id/currentPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="98dp"
+        android:layout_marginTop="35dp"
+        android:text="0"
+        app:layout_constraintStart_toEndOf="@+id/inputImage"
+        app:layout_constraintTop_toBottomOf="@+id/boardContent" />
+
+    <TextView
+        android:id="@+id/textView37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="35dp"
+        android:text="/"
+        app:layout_constraintStart_toEndOf="@+id/currentPage"
+        app:layout_constraintTop_toBottomOf="@+id/boardContent" />
+
+    <TextView
+        android:id="@+id/totalPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="136dp"
+        android:text="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/boardContent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

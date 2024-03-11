@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/main"
+        android:enabled="true"
+        android:title="홈"
+        app:showAsAction="always"
+        android:checkable="true"
+        android:checkableBehavior="single" />
+
+    <item
+        android:id="@+id/board"
+        android:enabled="true"
+        android:title="게시판"
+        app:showAsAction="always"
+        android:checkable="true"
+        android:checkableBehavior="single"
+        />
+
+    <item
+        android:id="@+id/cheat"
+        android:enabled="true"
+        android:title="채팅"
+        app:showAsAction="always"
+        android:checkable="true"
+        android:checkableBehavior="single"
+        />
+
+</menu>
