@@ -8,13 +8,13 @@ session_start();
 $phoneNum = $_GET["phone"];
 
 // sms 보내기 추가
-$sID = "ncp:sms:kr:314237787884:boardgame"; // 서비스 ID
+$sID = "#"; // 서비스 ID
 
-$smsURL = "https://sens.apigw.ntruss.com/sms/v2/services/".$sID."/messages";
-$smsUri = "/sms/v2/services/".$sID."/messages";
+$smsURL = "#";
+$smsUri = "#";
 
-$accKeyId = "22qE8efrTPAFyYFv8hwf";   //인증키 id
-$accSecKey = "uWBonhkcCVm8Z87O7iqTmfdiouFAO5WkbqMIbBx9";  //secret key
+$accKeyId = "#";   //인증키 id
+$accSecKey = "#";  //secret key
 
 $sTime = floor(microtime(true) * 1000);
 
@@ -24,7 +24,7 @@ $authNum = rand(100000, 999999);// 랜덤 인증 번호 생성
 $postData = array(
     'type' => 'SMS',
     'countryCode' => '82',
-    'from' => '01022961631', // 발신번호 (등록되어있어야함)
+    'from' => '#', // 발신번호 (등록되어있어야함)
     'contentType' => 'COMM',
     'content' => "메세지 내용",
     'messages' => array(array('content' => "문자입니다. 인증번호: ".$authNum, 'to' => $phoneNum))
