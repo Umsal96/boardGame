@@ -11,14 +11,14 @@
 
     $mail = new PHPMailer();
     $mail->isSMTP();                          // SMTP 사용 설정
-    $mail->Host = 'smtp.naver.com';           // SMTP 서버 설정
+    $mail->Host = '#';           // SMTP 서버 설정
     $mail->SMTPAuth = true;                   // SMTP 인증을 사용함
-    $mail->Username = 'apdlvmfghddl';     // SMTP 계정
-    $mail->Password = 'dbsghddlf!@';             // SMTP 계정 비밀번호
+    $mail->Username = '#';     // SMTP 계정
+    $mail->Password = '#';             // SMTP 계정 비밀번호
     $mail->SMTPSecure = 'ssl';                // SSL을 사용함
-    $mail->Port = 465;                        // TCP 포트
+    $mail->Port = #;                        // TCP 포트
     
-    $mail->setFrom('apdlvmfghddl@naver.com', 'boardGame', 'utf-8');
+    $mail->setFrom('#', '#', 'utf-8');
     $mail->addAddress($email, '유져', 'utf-8');
     
     $mail->Subject = '=?utf-8?B?' . base64_encode('인증 메일입니다.') . '?=';
